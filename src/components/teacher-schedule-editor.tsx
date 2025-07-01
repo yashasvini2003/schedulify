@@ -197,7 +197,7 @@ export default function TeacherScheduleEditor() {
   
   const handleGenerateAndNavigate = () => {
     store.generateClassSchedules();
-    router.push('/class-timetable');
+    router.push('/class-schedule');
   };
 
   const handleNavigateToTeacherTimetable = () => {
@@ -212,18 +212,18 @@ export default function TeacherScheduleEditor() {
       </header>
 
       <Card>
-        <CardHeader className="px-4">
+        <CardHeader>
           <CardTitle>Manage Timetable Data</CardTitle>
           <CardDescription>Enter one item per line for lists. Click 'Update Lists' to apply changes to the timetable editor below.</CardDescription>
         </CardHeader>
-        <CardContent className="px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="space-y-2">
               <Label htmlFor="teachers-list">
                 <Users className="inline-block mr-2 h-4 w-4" />
                 Teachers
               </Label>
-              <Textarea id="teachers-list" value={localTeachers} onChange={(e) => setLocalTeachers(e.target.value)} rows={4} placeholder="Enter one teacher per line..." />
+              <Textarea id="teachers-list" value={localTeachers} onChange={(e) => setLocalTeachers(e.target.value)} rows={5} placeholder="Enter one teacher per line..." />
             </div>
 
             <div className="space-y-2">
@@ -231,7 +231,7 @@ export default function TeacherScheduleEditor() {
                 <Building className="inline-block mr-2 h-4 w-4" />
                 Classes
               </Label>
-              <Textarea id="classes-list" value={localClasses} onChange={(e) => setLocalClasses(e.target.value)} rows={4} placeholder="Enter one class per line..." />
+              <Textarea id="classes-list" value={localClasses} onChange={(e) => setLocalClasses(e.target.value)} rows={5} placeholder="Enter one class per line..." />
             </div>
 
             <div className="space-y-2">
@@ -239,11 +239,11 @@ export default function TeacherScheduleEditor() {
                 <Book className="inline-block mr-2 h-4 w-4" />
                 Subjects
               </Label>
-              <Textarea id="subjects-list" value={localSubjects} onChange={(e) => setLocalSubjects(e.target.value)} rows={4} placeholder="Enter one subject per line..." />
+              <Textarea id="subjects-list" value={localSubjects} onChange={(e) => setLocalSubjects(e.target.value)} rows={5} placeholder="Enter one subject per line..." />
             </div>
           </div>
         </CardContent>
-        <CardFooter className="flex flex-wrap items-end justify-between gap-4 border-t pt-6 px-4">
+        <CardFooter className="flex flex-wrap items-end justify-between gap-4 border-t pt-6">
             <div className="space-y-2">
                 <Label htmlFor="periods-per-day">
                 <Hourglass className="inline-block mr-2 h-4 w-4" />
@@ -285,7 +285,7 @@ export default function TeacherScheduleEditor() {
             </AlertDialog>
             <Button onClick={handleNavigateToTeacherTimetable}>
               <FileText className="mr-2 h-4 w-4" />
-              Generate Teacher Timetable
+              View Teacher Timetables
             </Button>
             <Button onClick={handleGenerateAndNavigate}>
               <Wand2 className="mr-2 h-4 w-4" />
