@@ -5,12 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
-import { Download, AlertTriangle } from 'lucide-react';
+import { Download, AlertTriangle, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
 
 export default function TeacherTimetableViewer() {
   const { teacherSchedules, days, periods, teachers } = useTimetableStore();
   const { toast } = useToast();
+  const router = useRouter();
 
   const handleExport = (format: 'PDF') => {
     toast({
@@ -35,6 +37,10 @@ export default function TeacherTimetableViewer() {
           <p className="text-muted-foreground">View and export timetables for each teacher.</p>
         </div>
         <div className="flex gap-2">
+          <Button onClick={() => router.push('/teacher-schedule')}>
+            <FileText className="mr-2 h-4 w-4" />
+            Generate Teacher Timetable
+          </Button>
           <Button variant="outline" onClick={() => handleExport('PDF')} disabled={!hasSchedules}>
             <Download className="mr-2 h-4 w-4" />
             Export PDF
@@ -96,7 +102,7 @@ export default function TeacherTimetableViewer() {
                     <AlertTriangle className="h-4 w-4" />
                     <AlertTitle>No Teacher Schedules Found</AlertTitle>
                     <AlertDescription>
-                        Go to the Teacher Schedules page to create timetables for teachers.
+                        Go to the Timetable Editor page to create timetables for teachers.
                     </AlertDescription>
                 </Alert>
             </CardContent>
