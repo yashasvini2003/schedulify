@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Label } from './ui/label';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { AlertTriangle, Book, Building, FileText, Trash2, Users, Wand2 } from 'lucide-react';
+import { AlertTriangle, Book, Building, FileText, Hourglass, Trash2, Users, Wand2 } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
 import type { ScheduleEntry } from '@/types';
 import { Textarea } from './ui/textarea';
@@ -112,6 +112,7 @@ export default function TeacherScheduleEditor() {
   const [localTeachers, setLocalTeachers] = useState(store.teachers.join('\n'));
   const [localClasses, setLocalClasses] = useState(store.classes.join('\n'));
   const [localSubjects, setLocalSubjects] = useState(store.subjects.join('\n'));
+  const [localPeriods, setLocalPeriods] = useState(store.periods.length.toString());
 
   useEffect(() => {
     setLocalTeachers(store.teachers.join('\n'));
@@ -124,6 +125,11 @@ export default function TeacherScheduleEditor() {
   useEffect(() => {
     setLocalSubjects(store.subjects.join('\n'));
   }, [store.subjects]);
+
+  useEffect(() => {
+    setLocalPeriods(store.periods.length.toString());
+  }, [store.periods]);
+
 
   const handleUpdateLists = () => {
     const processList = (text: string, name: string): string[] => {
@@ -142,6 +148,7 @@ export default function TeacherScheduleEditor() {
     store.setTeachers(processList(localTeachers, 'teacher'));
     store.setClasses(processList(localClasses, 'class'));
     store.setSubjects(processList(localSubjects, 'subject'));
+    store.setPeriods(Number(localPeriods));
 
     toast({
         title: "Lists Updated",
@@ -167,10 +174,10 @@ export default function TeacherScheduleEditor() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Manage Teachers, Classes & Subjects</CardTitle>
-          <CardDescription>Enter one item per line. Click 'Update Lists' to apply changes to the timetable editor below.</CardDescription>
+          <CardTitle>Manage Timetable Data</CardTitle>
+          <CardDescription>Enter one item per line for lists. Click 'Update Lists' to apply changes to the timetable editor below.</CardDescription>
         </CardHeader>
-        <CardContent className="grid md:grid-cols-3 gap-6">
+        <CardContent className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
            <div className="space-y-2">
             <Label htmlFor="teachers-list">
               <Users className="inline-block mr-2 h-4 w-4" />
@@ -193,6 +200,13 @@ export default function TeacherScheduleEditor() {
               Subjects
             </Label>
             <Textarea id="subjects-list" value={localSubjects} onChange={(e) => setLocalSubjects(e.target.value)} rows={5} placeholder="Enter one subject per line..." />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="periods-per-day">
+              <Hourglass className="inline-block mr-2 h-4 w-4" />
+              Periods per Day
+            </Label>
+            <Input id="periods-per-day" type="number" value={localPeriods} onChange={(e) => setLocalPeriods(e.target.value)} min="1" max="12" placeholder="e.g., 8" />
           </div>
         </CardContent>
         <CardFooter>

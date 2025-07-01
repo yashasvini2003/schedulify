@@ -1,8 +1,11 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { TeacherSchedule, ClassSchedule, ScheduleEntry } from '@/types';
-import { INITIAL_TEACHERS, INITIAL_CLASSES, SUBJECTS, DAYS_OF_WEEK, PERIODS } from '@/lib/data';
+import { INITIAL_TEACHERS, INITIAL_CLASSES, SUBJECTS, DAYS_OF_WEEK } from '@/lib/data';
 import { toast } from './use-toast';
+
+const createPeriods = (count: number) => Array.from({ length: count }, (_, i) => `P${i + 1}`);
+const INITIAL_PERIOD_COUNT = 8;
 
 interface TimetableState {
   teachers: string[];
@@ -15,6 +18,7 @@ interface TimetableState {
   setTeachers: (teachers: string[]) => void;
   setClasses: (classes: string[]) => void;
   setSubjects: (subjects: string[]) => void;
+  setPeriods: (count: number) => void;
   setTeacherSchedule: (teacherId: string, day: string, period: string, entry: ScheduleEntry) => void;
   generateClassSchedules: () => void;
   resetSchedules: () => void;
@@ -41,8 +45,8 @@ export const useTimetableStore = create<TimetableState>()(
       classes: INITIAL_CLASSES,
       subjects: SUBJECTS,
       days: DAYS_OF_WEEK,
-      periods: PERIODS,
-      teacherSchedules: createEmptySchedules(INITIAL_TEACHERS, DAYS_OF_WEEK, PERIODS),
+      periods: createPeriods(INITIAL_PERIOD_COUNT),
+      teacherSchedules: createEmptySchedules(INITIAL_TEACHERS, DAYS_OF_WEEK, createPeriods(INITIAL_PERIOD_COUNT)),
       classSchedules: {},
 
       setTeachers: (newTeachers) => {
@@ -63,6 +67,20 @@ export const useTimetableStore = create<TimetableState>()(
 
       setSubjects: (newSubjects) => {
         set({ subjects: newSubjects });
+      },
+
+      setPeriods: (count) => {
+        if (count < 1 || count > 12) {
+          toast({ variant: 'destructive', title: 'Invalid Input', description: 'Number of periods must be between 1 and 12.' });
+          return;
+        }
+        const { teachers, days } = get();
+        const newPeriods = createPeriods(count);
+        set({
+          periods: newPeriods,
+          teacherSchedules: createEmptySchedules(teachers, days, newPeriods),
+          classSchedules: {}
+        });
       },
 
       setTeacherSchedule: (teacherId, day, period, entry) => {
@@ -128,16 +146,6 @@ export const useTimetableStore = create<TimetableState>()(
           });
         });
         
-        // Check for classes with more than 8 periods a day
-        Object.entries(newClassSchedules).forEach(([classId, schedule]) => {
-            Object.entries(schedule).forEach(([day, daySchedule]) => {
-                const periodCount = Object.values(daySchedule).filter(p => p !== null).length;
-                if (periodCount > 8) {
-                    toast({ variant: 'destructive', title: 'Scheduling Warning', description: `Class ${classId} has more than 8 periods on ${day}.` });
-                }
-            });
-        });
-
         set({ classSchedules: newClassSchedules });
         toast({ title: 'Success', description: 'Class timetables generated.' });
       },

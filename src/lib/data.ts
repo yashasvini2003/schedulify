@@ -28,4 +28,3 @@ export const SUBJECTS = [
 ];
 
 export const DAYS_OF_WEEK = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-export const PERIODS = Array.from({ length: 8 }, (_, i) => `P${i + 1}`);
