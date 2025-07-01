@@ -284,7 +284,7 @@ export default function TeacherScheduleEditor() {
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
-            <Button onClick={handleNavigateToTeacherTimetable}>
+            <Button variant="secondary" onClick={handleNavigateToTeacherTimetable}>
               <Wand2 className="mr-2 h-4 w-4" />
               Generate Teacher Timetable
             </Button>
