@@ -50,11 +50,27 @@ export const useTimetableStore = create<TimetableState>()(
       classSchedules: {},
 
       setTeachers: (newTeachers) => {
-        const { days, periods } = get();
+        const { teacherSchedules, days, periods } = get();
+        const oldSchedules = teacherSchedules;
+        const newTeacherSchedules: TeacherSchedule = {};
+
+        // Add existing and new teachers, preserving their schedules
+        newTeachers.forEach(teacher => {
+          newTeacherSchedules[teacher] = oldSchedules[teacher] || {};
+          days.forEach(day => {
+            newTeacherSchedules[teacher][day] = newTeacherSchedules[teacher][day] || {};
+            periods.forEach(period => {
+              if (newTeacherSchedules[teacher][day][period] === undefined) {
+                newTeacherSchedules[teacher][day][period] = null;
+              }
+            });
+          });
+        });
+
         set({
           teachers: newTeachers,
-          teacherSchedules: createEmptySchedules(newTeachers, days, periods),
-          classSchedules: {},
+          teacherSchedules: newTeacherSchedules,
+          classSchedules: {}, // Reset class schedules as they are derived
         });
       },
 
@@ -74,11 +90,31 @@ export const useTimetableStore = create<TimetableState>()(
           toast({ variant: 'destructive', title: 'Invalid Input', description: 'Number of periods must be between 1 and 12.' });
           return;
         }
-        const { teachers, days } = get();
+
+        const { teacherSchedules, teachers, days, periods: oldPeriods } = get();
         const newPeriods = createPeriods(count);
+
+        if (JSON.stringify(oldPeriods) === JSON.stringify(newPeriods)) return;
+
+        const newTeacherSchedules: TeacherSchedule = {};
+
+        teachers.forEach(teacher => {
+            newTeacherSchedules[teacher] = {};
+            days.forEach(day => {
+                const oldDaySchedule = teacherSchedules[teacher]?.[day] || {};
+                const newDaySchedule: Record<string, ScheduleEntry> = {};
+                
+                newPeriods.forEach(period => {
+                    newDaySchedule[period] = oldDaySchedule[period] || null;
+                });
+                
+                newTeacherSchedules[teacher][day] = newDaySchedule;
+            });
+        });
+
         set({
           periods: newPeriods,
-          teacherSchedules: createEmptySchedules(teachers, days, newPeriods),
+          teacherSchedules: newTeacherSchedules,
           classSchedules: {}
         });
       },
@@ -134,17 +170,22 @@ export const useTimetableStore = create<TimetableState>()(
         });
 
         Object.entries(teacherSchedules).forEach(([teacherId, schedule]) => {
+          if (!schedule) return;
           Object.entries(schedule).forEach(([day, daySchedule]) => {
+            if (!daySchedule) return;
             Object.entries(daySchedule).forEach(([period, entry]) => {
               if (entry && newClassSchedules[entry.classId]) {
-                if (newClassSchedules[entry.classId][day][period]) {
+                if (newClassSchedules[entry.classId]?.[day]?.[period]) {
                    console.warn(`Conflict detected for class ${entry.classId} on ${day} at ${period}. Overwriting.`);
                 }
                 const newEntry: { teacherId: string, subject: string, note?: string } = { teacherId, subject: entry.subject };
                 if (entry.note) {
                   newEntry.note = entry.note;
                 }
-                newClassSchedules[entry.classId][day][period] = newEntry;
+
+                if(newClassSchedules[entry.classId]?.[day]) {
+                    newClassSchedules[entry.classId][day][period] = newEntry;
+                }
               }
             });
           });
