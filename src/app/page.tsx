@@ -13,14 +13,14 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-[calc(100vh-8rem)]">
       <main className="flex-grow">
-        <header className="text-center mb-12">
-          <div className="flex justify-center items-center gap-4 mb-4">
+        <header className="mb-12">
+          <div className="flex items-center gap-4 mb-4">
             <MadaanInternationalSchoolLogo className="h-16 w-16" />
             <div>
               <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-primary">
                 Madaan International School
               </h1>
-              <p className="mt-1 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+              <p className="mt-1 text-lg md:text-xl text-muted-foreground">
                 Intelligent Timetable Management
               </p>
             </div>
@@ -110,7 +110,7 @@ export default function Home() {
                  <div className="bg-primary/10 p-2 rounded-lg">
                   <BookOpen className="text-primary h-6 w-6" />
                 </div>
-                Class Timetables
+                Class Timetable
               </CardTitle>
             </CardHeader>
             <CardContent className="flex-grow">
