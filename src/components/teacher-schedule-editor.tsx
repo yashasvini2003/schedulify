@@ -216,7 +216,7 @@ export default function TeacherScheduleEditor() {
           <CardTitle>Manage Timetable Data</CardTitle>
           <CardDescription>Enter one item per line for lists. Click 'Update Lists' to apply changes to the timetable editor below.</CardDescription>
         </CardHeader>
-        <CardContent className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <CardContent className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div className="space-y-2">
             <Label htmlFor="teachers-list">
               <Users className="inline-block mr-2 h-4 w-4" />
