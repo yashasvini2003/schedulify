@@ -1,5 +1,3 @@
-// Optimize Timetable Flow
-
 'use server';
 /**
  * @fileOverview An AI agent that optimizes timetables to ensure even workload distribution among teachers.
@@ -17,6 +15,7 @@ const OptimizeTimetableInputSchema = z.object({
   classTimetables: z.record(z.string(), z.record(z.string(), z.record(z.string(), z.string()))).describe('A record of class timetables, with class IDs as keys, days of the week as keys, periods as keys, and assigned teacher/subject as values.'),
   teachers: z.array(z.string()).describe('An array of teacher names.'),
   classes: z.array(z.string()).describe('An array of class names.'),
+  teacherWorkloads: z.record(z.string(), z.number()).describe('A record of maximum weekly periods for each teacher.'),
 });
 
 export type OptimizeTimetableInput = z.infer<typeof OptimizeTimetableInputSchema>;
@@ -37,17 +36,22 @@ const prompt = ai.definePrompt({
   name: 'optimizeTimetablePrompt',
   input: {schema: OptimizeTimetableInputSchema},
   output: {schema: OptimizeTimetableOutputSchema},
-  prompt: `You are an AI timetable optimizer. Given the following teacher and class timetables, optimize the timetables to ensure an even distribution of workload among teachers, and avoid teacher/class conflicts or duplicate entries.  Try to make as few changes as possible.
+  prompt: `You are an AI timetable optimizer. Given the following teacher and class timetables, optimize the timetables to ensure an even distribution of workload among teachers, and avoid teacher/class conflicts or duplicate entries.
 
-  Teachers: {{{teachers}}}
-  Classes: {{{classes}}}
+Crucially, you must respect the maximum weekly period workload for each teacher specified in \`teacherWorkloads\`. A teacher's total assigned periods for the week must not exceed their specified limit. If you cannot create a valid schedule without exceeding these limits for one or more teachers, your primary goal is to report this failure clearly in the \`optimizationSummary\`. In case of failure, return the original timetables unmodified.
 
-  Teacher Timetables: {{{teacherTimetables}}}
-  Class Timetables: {{{classTimetables}}}
+Teacher Workloads (teacher: max_periods_per_week):
+{{{teacherWorkloads}}}
 
-  Return the optimized timetables and a summary of the optimizations made.
+Teachers: {{{teachers}}}
+Classes: {{{classes}}}
 
-  Consider a maximum of 8 periods per day for each class or teacher.
+Teacher Timetables: {{{teacherTimetables}}}
+Class Timetables: {{{classTimetables}}}
+
+Return the optimized timetables and a summary of the optimizations made.
+
+Consider a maximum of 8 periods per day for each class or teacher.
   `, 
 });
 

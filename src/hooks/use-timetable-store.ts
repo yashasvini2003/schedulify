@@ -12,9 +12,11 @@ interface TimetableState {
   periods: string[];
   teacherSchedules: TeacherSchedule;
   classSchedules: ClassSchedule;
+  teacherWorkloads: Record<string, number>;
   setTeachers: (teachers: string[]) => void;
   setClasses: (classes: string[]) => void;
   setSubjects: (subjects: string[]) => void;
+  setTeacherWorkload: (teacherId: string, maxPeriods: number) => void;
   setTeacherSchedule: (teacherId: string, day: string, period: string, entry: ScheduleEntry) => void;
   generateClassSchedules: () => void;
   setOptimizedSchedules: (
@@ -48,13 +50,22 @@ export const useTimetableStore = create<TimetableState>()(
       periods: PERIODS,
       teacherSchedules: createEmptySchedules(INITIAL_TEACHERS, DAYS_OF_WEEK, PERIODS),
       classSchedules: {},
+      teacherWorkloads: INITIAL_TEACHERS.reduce((acc, teacher) => {
+        acc[teacher] = 40; // Default max 40 periods per week
+        return acc;
+      }, {} as Record<string, number>),
 
       setTeachers: (newTeachers) => {
-        const { days, periods } = get();
+        const { days, periods, teacherWorkloads } = get();
+        const newTeacherWorkloads: Record<string, number> = {};
+        newTeachers.forEach(teacher => {
+            newTeacherWorkloads[teacher] = teacherWorkloads[teacher] || 40; // Keep existing or set default
+        });
         set({
           teachers: newTeachers,
           teacherSchedules: createEmptySchedules(newTeachers, days, periods),
           classSchedules: {},
+          teacherWorkloads: newTeacherWorkloads,
         });
       },
 
@@ -67,6 +78,15 @@ export const useTimetableStore = create<TimetableState>()(
 
       setSubjects: (newSubjects) => {
         set({ subjects: newSubjects });
+      },
+
+      setTeacherWorkload: (teacherId, maxPeriods) => {
+        set(state => ({
+          teacherWorkloads: {
+            ...state.teacherWorkloads,
+            [teacherId]: maxPeriods,
+          }
+        }));
       },
 
       setTeacherSchedule: (teacherId, day, period, entry) => {

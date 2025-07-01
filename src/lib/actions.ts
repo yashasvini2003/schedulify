@@ -9,6 +9,7 @@ const ActionInputSchema = z.object({
   classes: z.array(z.string()),
   teacherSchedules: z.any(),
   classSchedules: z.any(),
+  teacherWorkloads: z.record(z.string(), z.number()),
 });
 
 function transformToAIFormat(schedule: TeacherSchedule) {
@@ -103,6 +104,7 @@ export async function optimizeTimetableAction(input: unknown) {
             classes: parsedInput.classes,
             teacherTimetables: transformToAIFormat(parsedInput.teacherSchedules),
             classTimetables: transformClassToAIFormat(parsedInput.classSchedules),
+            teacherWorkloads: parsedInput.teacherWorkloads,
         };
 
         const result = await optimizeTimetable(aiInput);

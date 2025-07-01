@@ -15,6 +15,7 @@ import { AlertTriangle, Book, Bot, Building, Loader2, Sparkles, Trash2, Users } 
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
 import type { ScheduleEntry } from '@/types';
 import { Textarea } from './ui/textarea';
+import { Input } from './ui/input';
 
 function ScheduleCell({ teacherId, day, period }: { teacherId: string; day: string; period: string }) {
   const { teacherSchedules, setTeacherSchedule, classes, subjects } = useTimetableStore();
@@ -158,6 +159,7 @@ export default function TeacherScheduleEditor() {
         classes: currentState.classes,
         teacherSchedules: currentState.teacherSchedules,
         classSchedules: currentState.classSchedules,
+        teacherWorkloads: currentState.teacherWorkloads,
     });
     
     if (result.success && result.data) {
@@ -227,6 +229,35 @@ export default function TeacherScheduleEditor() {
         <CardFooter>
             <Button onClick={handleUpdateLists}>Update Lists</Button>
         </CardFooter>
+      </Card>
+      
+      <Card>
+        <CardHeader>
+            <CardTitle>Teacher Workload Limits</CardTitle>
+            <CardDescription>Set the maximum number of periods per week for each teacher. The AI will respect these limits during optimization.</CardDescription>
+        </CardHeader>
+        <CardContent>
+            {store.teachers.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-4">
+                    {store.teachers.map(teacher => (
+                        <div key={teacher} className="flex items-center justify-between gap-4">
+                            <Label htmlFor={`workload-${teacher}`} className="truncate">{teacher}</Label>
+                            <Input
+                                id={`workload-${teacher}`}
+                                type="number"
+                                value={store.teacherWorkloads[teacher] || ''}
+                                onChange={(e) => store.setTeacherWorkload(teacher, parseInt(e.target.value, 10) || 0)}
+                                className="w-24"
+                                min="0"
+                                max={store.days.length * store.periods.length}
+                            />
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <p className="text-sm text-muted-foreground">Add teachers above to set workload limits.</p>
+            )}
+        </CardContent>
       </Card>
 
       <Card>
