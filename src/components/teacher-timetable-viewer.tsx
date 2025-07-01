@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
-import { Download, AlertTriangle, FileText } from 'lucide-react';
+import { Download, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 
@@ -31,14 +31,16 @@ export default function TeacherTimetableViewer() {
 
   return (
     <div className="flex flex-col gap-8">
-      <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+       <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-primary">Teacher Timetables</h1>
-          <p className="text-muted-foreground">View and export timetables for each teacher.</p>
+          <p className="text-muted-foreground mt-1">
+            View and export timetables for each teacher.
+          </p>
         </div>
         <div className="flex gap-2">
             <Button onClick={() => router.push('/teacher-schedule')}>
-              Go to Editor
+              Go to Timetable Editor
             </Button>
             <Button variant="outline" onClick={() => handleExport('PDF')} disabled={!hasSchedules}>
               <Download className="mr-2 h-4 w-4" />
