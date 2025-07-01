@@ -14,12 +14,13 @@ import {
   SidebarInset,
 } from '@/components/ui/sidebar';
 import { ChronoFlowLogo } from '@/components/icons';
-import { BookOpen, LayoutDashboard, Users } from 'lucide-react';
+import { BookOpen, LayoutDashboard, Users, FileText } from 'lucide-react';
 import { Button } from '../ui/button';
 
 const navItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/teacher-schedule', label: 'Teacher Schedules', icon: Users },
+  { href: '/teacher-timetable', label: 'Teacher Timetables', icon: FileText },
   { href: '/class-schedule', label: 'Class Schedules', icon: BookOpen },
 ];
 

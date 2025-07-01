@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Users, ArrowRight, LayoutDashboard } from 'lucide-react';
+import { BookOpen, Users, ArrowRight, LayoutDashboard, FileText } from 'lucide-react';
 import { useTimetableStore } from '@/hooks/use-timetable-store';
 
 export default function Home() {
@@ -50,7 +50,7 @@ export default function Home() {
         </Card>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <Card className="flex flex-col">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -65,6 +65,24 @@ export default function Home() {
             <Button asChild>
               <Link href="/teacher-schedule">
                 Manage Teacher Schedules <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+        </Card>
+         <Card className="flex flex-col">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="text-primary" />
+              Teacher Timetables
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex-grow">
+            <p className="text-muted-foreground mb-4">View individual timetables for all teachers, showing their assigned classes and free periods.</p>
+          </CardContent>
+          <div className="p-6 pt-0">
+            <Button asChild>
+              <Link href="/teacher-timetable">
+                View Teacher Timetables <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
           </div>
