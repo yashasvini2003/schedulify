@@ -216,8 +216,8 @@ export default function TeacherScheduleEditor() {
           <CardTitle>Manage Timetable Data</CardTitle>
           <CardDescription>Enter one item per line for lists. Click 'Update Lists' to apply changes to the timetable editor below.</CardDescription>
         </CardHeader>
-        <CardContent className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-           <div className="space-y-2">
+        <CardContent className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="space-y-2">
             <Label htmlFor="teachers-list">
               <Users className="inline-block mr-2 h-4 w-4" />
               Teachers
@@ -230,7 +230,7 @@ export default function TeacherScheduleEditor() {
               <Building className="inline-block mr-2 h-4 w-4" />
               Classes
             </Label>
-             <Textarea id="classes-list" value={localClasses} onChange={(e) => setLocalClasses(e.target.value)} rows={5} placeholder="Enter one class per line..." />
+            <Textarea id="classes-list" value={localClasses} onChange={(e) => setLocalClasses(e.target.value)} rows={5} placeholder="Enter one class per line..." />
           </div>
 
           <div className="space-y-2">
@@ -240,15 +240,15 @@ export default function TeacherScheduleEditor() {
             </Label>
             <Textarea id="subjects-list" value={localSubjects} onChange={(e) => setLocalSubjects(e.target.value)} rows={5} placeholder="Enter one subject per line..." />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="periods-per-day">
-              <Hourglass className="inline-block mr-2 h-4 w-4" />
-              Periods per Day
-            </Label>
-            <Input id="periods-per-day" type="number" value={localPeriods} onChange={(e) => setLocalPeriods(e.target.value)} min="1" max="12" placeholder="e.g., 8" />
-          </div>
         </CardContent>
-        <CardFooter>
+        <CardFooter className="flex flex-wrap items-end justify-between gap-4 border-t pt-6">
+            <div className="space-y-2">
+                <Label htmlFor="periods-per-day">
+                <Hourglass className="inline-block mr-2 h-4 w-4" />
+                Periods per Day
+                </Label>
+                <Input id="periods-per-day" className="w-48" type="number" value={localPeriods} onChange={(e) => setLocalPeriods(e.target.value)} min="1" max="12" placeholder="e.g., 8" />
+            </div>
             <Button onClick={handleUpdateLists}>Update Lists</Button>
         </CardFooter>
       </Card>
