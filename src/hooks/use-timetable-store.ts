@@ -140,7 +140,11 @@ export const useTimetableStore = create<TimetableState>()(
                 if (newClassSchedules[entry.classId][day][period]) {
                    console.warn(`Conflict detected for class ${entry.classId} on ${day} at ${period}. Overwriting.`);
                 }
-                newClassSchedules[entry.classId][day][period] = { teacherId, subject: entry.subject };
+                const newEntry: { teacherId: string, subject: string, note?: string } = { teacherId, subject: entry.subject };
+                if (entry.note) {
+                  newEntry.note = entry.note;
+                }
+                newClassSchedules[entry.classId][day][period] = newEntry;
               }
             });
           });

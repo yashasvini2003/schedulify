@@ -63,11 +63,12 @@ export default function ClassScheduleViewer() {
                                     {periods.map(period => {
                                         const entry = classSchedules[classId]?.[day]?.[period];
                                         return (
-                                            <TableCell key={period} className="h-16 w-32 border text-center">
+                                            <TableCell key={period} className="h-24 w-32 border text-center">
                                                 {entry ? (
-                                                    <div className="text-xs">
+                                                    <div className="text-xs space-y-1">
                                                         <p className="font-bold text-primary">{entry.teacherId}</p>
                                                         <p className="text-muted-foreground">{entry.subject}</p>
+                                                        {entry.note && <p className="text-muted-foreground italic truncate mt-1 text-left border-l-2 pl-2">{entry.note}</p>}
                                                     </div>
                                                 ) : null}
                                             </TableCell>
