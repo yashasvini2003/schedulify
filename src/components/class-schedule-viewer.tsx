@@ -7,10 +7,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 import { Download, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
 
 export default function ClassScheduleViewer() {
   const { classSchedules, days, periods, classes } = useTimetableStore();
   const { toast } = useToast();
+  const router = useRouter();
 
   const handleExport = (format: 'PDF' | 'Excel') => {
     toast({
@@ -31,6 +33,9 @@ export default function ClassScheduleViewer() {
           <p className="text-muted-foreground">View and export timetables for each class.</p>
         </div>
         <div className="flex gap-2">
+          <Button onClick={() => router.push('/teacher-schedule')}>
+            Go to Timetable Editor
+          </Button>
           <Button variant="outline" onClick={() => handleExport('PDF')} disabled={!hasSchedules}>
             <Download className="mr-2 h-4 w-4" />
             Export PDF
