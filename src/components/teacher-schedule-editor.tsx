@@ -12,7 +12,7 @@ import { Label } from './ui/label';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 import { optimizeTimetableAction } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
-import { AlertTriangle, Book, Bot, Building, Loader2, Sparkles, Trash2, X } from 'lucide-react';
+import { AlertTriangle, Book, Bot, Building, Loader2, Sparkles, Trash2, Users, X } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
 import type { ScheduleEntry } from '@/types';
 
