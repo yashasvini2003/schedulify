@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTimetableStore } from '@/hooks/use-timetable-store';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from './ui/card';
 import { Button } from './ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
@@ -11,11 +11,10 @@ import { Label } from './ui/label';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 import { optimizeTimetableAction } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
-import { AlertTriangle, Book, Bot, Building, Loader2, Sparkles, Trash2, Users, X } from 'lucide-react';
+import { AlertTriangle, Book, Bot, Building, Loader2, Sparkles, Trash2, Users } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
 import type { ScheduleEntry } from '@/types';
-import { Input } from './ui/input';
-import { Badge } from './ui/badge';
+import { Textarea } from './ui/textarea';
 
 function ScheduleCell({ teacherId, day, period }: { teacherId: string; day: string; period: string }) {
   const { teacherSchedules, setTeacherSchedule, classes, subjects } = useTimetableStore();
@@ -109,36 +108,44 @@ export default function TeacherScheduleEditor() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   
-  const [teacherInput, setTeacherInput] = useState('');
-  const [classInput, setClassInput] = useState('');
-  const [subjectInput, setSubjectInput] = useState('');
+  const [localTeachers, setLocalTeachers] = useState(store.teachers.join('\n'));
+  const [localClasses, setLocalClasses] = useState(store.classes.join('\n'));
+  const [localSubjects, setLocalSubjects] = useState(store.subjects.join('\n'));
 
-  const handleAdd = (
-    value: string,
-    list: string[],
-    setter: (newList: string[]) => void,
-    inputSetter: (value: string) => void,
-    listName: string
-  ) => {
-    const trimmedValue = value.trim();
-    if (trimmedValue && !list.map(i => i.toLowerCase()).includes(trimmedValue.toLowerCase())) {
-        setter([...list, trimmedValue]);
-        inputSetter('');
-    } else if (list.map(i => i.toLowerCase()).includes(trimmedValue.toLowerCase())) {
-        toast({
-            variant: 'destructive',
-            title: 'Duplicate Entry',
-            description: `${trimmedValue} already exists in the ${listName} list.`,
-        });
-    }
-  };
+  useEffect(() => {
+    setLocalTeachers(store.teachers.join('\n'));
+  }, [store.teachers]);
+  
+  useEffect(() => {
+    setLocalClasses(store.classes.join('\n'));
+  }, [store.classes]);
 
-  const handleRemove = (
-      itemToRemove: string,
-      list: string[],
-      setter: (newList: string[]) => void
-  ) => {
-      setter(list.filter((item) => item !== itemToRemove));
+  useEffect(() => {
+    setLocalSubjects(store.subjects.join('\n'));
+  }, [store.subjects]);
+
+  const handleUpdateLists = () => {
+    const processList = (text: string, name: string): string[] => {
+      const items = text.split('\n').map(item => item.trim()).filter(Boolean);
+      const uniqueItems = [...new Set(items)];
+      if (items.length > uniqueItems.length) {
+          toast({
+              variant: "default",
+              title: `Duplicate ${name} removed`,
+              description: `Duplicate entries in the ${name} list were automatically removed.`,
+          });
+      }
+      return uniqueItems;
+    };
+    
+    store.setTeachers(processList(localTeachers, 'teacher'));
+    store.setClasses(processList(localClasses, 'class'));
+    store.setSubjects(processList(localSubjects, 'subject'));
+
+    toast({
+        title: "Lists Updated",
+        description: "The timetable editor has been updated with the new lists."
+    });
   };
   
   const handleOptimize = async () => {
@@ -190,114 +197,36 @@ export default function TeacherScheduleEditor() {
       <Card>
         <CardHeader>
           <CardTitle>Manage Teachers, Classes & Subjects</CardTitle>
-          <CardDescription>Add or remove items. Type a name and press Enter to add. Click the 'x' on a badge to remove. Changes are saved automatically.</CardDescription>
+          <CardDescription>Enter one item per line. Click 'Update Lists' to apply changes to the timetable editor below.</CardDescription>
         </CardHeader>
         <CardContent className="grid md:grid-cols-3 gap-6">
            <div className="space-y-2">
-            <Label htmlFor="teachers-input">
+            <Label htmlFor="teachers-list">
               <Users className="inline-block mr-2 h-4 w-4" />
               Teachers
             </Label>
-            <div className="flex flex-col gap-2">
-              <div className="flex flex-wrap gap-1 p-2 border rounded-md min-h-[40px]">
-                {store.teachers.map((teacher) => (
-                  <Badge key={teacher} variant="secondary" className="flex items-center gap-1">
-                    {teacher}
-                    <button
-                      onClick={() => handleRemove(teacher, store.teachers, store.setTeachers)}
-                      className="rounded-full hover:bg-muted-foreground/20 p-0.5"
-                      aria-label={`Remove ${teacher}`}
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </Badge>
-                ))}
-              </div>
-              <Input
-                id="teachers-input"
-                value={teacherInput}
-                onChange={(e) => setTeacherInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    handleAdd(teacherInput, store.teachers, store.setTeachers, setTeacherInput, 'teacher');
-                  }
-                }}
-                placeholder="Add a teacher..."
-              />
-            </div>
+            <Textarea id="teachers-list" value={localTeachers} onChange={(e) => setLocalTeachers(e.target.value)} rows={5} placeholder="Enter one teacher per line..." />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="classes-input">
+            <Label htmlFor="classes-list">
               <Building className="inline-block mr-2 h-4 w-4" />
               Classes
             </Label>
-            <div className="flex flex-col gap-2">
-              <div className="flex flex-wrap gap-1 p-2 border rounded-md min-h-[40px]">
-                {store.classes.map((c) => (
-                  <Badge key={c} variant="secondary" className="flex items-center gap-1">
-                    {c}
-                    <button
-                      onClick={() => handleRemove(c, store.classes, store.setClasses)}
-                      className="rounded-full hover:bg-muted-foreground/20 p-0.5"
-                      aria-label={`Remove ${c}`}
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </Badge>
-                ))}
-              </div>
-              <Input
-                id="classes-input"
-                value={classInput}
-                onChange={(e) => setClassInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    handleAdd(classInput, store.classes, store.setClasses, setClassInput, 'class');
-                  }
-                }}
-                placeholder="Add a class..."
-              />
-            </div>
+             <Textarea id="classes-list" value={localClasses} onChange={(e) => setLocalClasses(e.target.value)} rows={5} placeholder="Enter one class per line..." />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="subjects-input">
+            <Label htmlFor="subjects-list">
               <Book className="inline-block mr-2 h-4 w-4" />
               Subjects
             </Label>
-            <div className="flex flex-col gap-2">
-              <div className="flex flex-wrap gap-1 p-2 border rounded-md min-h-[40px]">
-                {store.subjects.map((subject) => (
-                  <Badge key={subject} variant="secondary" className="flex items-center gap-1">
-                    {subject}
-                    <button
-                      onClick={() => handleRemove(subject, store.subjects, store.setSubjects)}
-                      className="rounded-full hover:bg-muted-foreground/20 p-0.5"
-                      aria-label={`Remove ${subject}`}
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </Badge>
-                ))}
-              </div>
-              <Input
-                id="subjects-input"
-                value={subjectInput}
-                onChange={(e) => setSubjectInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    handleAdd(subjectInput, store.subjects, store.setSubjects, setSubjectInput, 'subject');
-                  }
-                }}
-                placeholder="Add a subject..."
-              />
-            </div>
+            <Textarea id="subjects-list" value={localSubjects} onChange={(e) => setLocalSubjects(e.target.value)} rows={5} placeholder="Enter one subject per line..." />
           </div>
         </CardContent>
+        <CardFooter>
+            <Button onClick={handleUpdateLists}>Update Lists</Button>
+        </CardFooter>
       </Card>
 
       <Card>

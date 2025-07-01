@@ -56,7 +56,6 @@ export const useTimetableStore = create<TimetableState>()(
           teacherSchedules: createEmptySchedules(newTeachers, days, periods),
           classSchedules: {},
         });
-        toast({ title: 'Success', description: 'Teacher list updated.' });
       },
 
       setClasses: (newClasses) => {
@@ -64,12 +63,10 @@ export const useTimetableStore = create<TimetableState>()(
           classes: newClasses,
           classSchedules: {},
         });
-        toast({ title: 'Success', description: 'Class list updated.' });
       },
 
       setSubjects: (newSubjects) => {
         set({ subjects: newSubjects });
-        toast({ title: 'Success', description: 'Subject list updated.' });
       },
 
       setTeacherSchedule: (teacherId, day, period, entry) => {
