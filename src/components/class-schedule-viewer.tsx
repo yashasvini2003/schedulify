@@ -6,7 +6,7 @@ import { Button } from './ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 import { Download, AlertTriangle, Wand2 } from 'lucide-react';
-import { useToast } from './ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 export default function ClassScheduleViewer() {
   const { classSchedules, generateClassSchedules, days, periods, classes } = useTimetableStore();
