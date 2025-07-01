@@ -21,7 +21,7 @@ const navItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/teacher-schedule', label: 'Timetable Editor', icon: Users },
   { href: '/teacher-timetable', label: 'Teacher Timetables', icon: FileText },
-  { href: '/class-timetable', label: 'Class Timetable', icon: BookOpen },
+  { href: '/class-schedule', label: 'Class Timetable', icon: BookOpen },
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
