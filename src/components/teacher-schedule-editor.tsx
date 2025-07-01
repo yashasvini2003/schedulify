@@ -217,8 +217,8 @@ export default function TeacherScheduleEditor() {
           <CardDescription>Enter one item per line for lists. Click 'Update Lists' to apply changes to the timetable editor below.</CardDescription>
         </CardHeader>
         <CardContent className="px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-2">
+          <div className="flex flex-col items-center md:flex-row md:items-start md:justify-around gap-4">
+            <div className="space-y-2 w-full md:max-w-xs">
               <Label htmlFor="teachers-list">
                 <Users className="inline-block mr-2 h-4 w-4" />
                 Teachers
@@ -226,7 +226,7 @@ export default function TeacherScheduleEditor() {
               <Textarea id="teachers-list" value={localTeachers} onChange={(e) => setLocalTeachers(e.target.value)} rows={2} placeholder="Enter one teacher per line..." />
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2 w-full md:max-w-xs">
               <Label htmlFor="classes-list">
                 <Building className="inline-block mr-2 h-4 w-4" />
                 Classes
@@ -234,7 +234,7 @@ export default function TeacherScheduleEditor() {
               <Textarea id="classes-list" value={localClasses} onChange={(e) => setLocalClasses(e.target.value)} rows={2} placeholder="Enter one class per line..." />
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2 w-full md:max-w-xs">
               <Label htmlFor="subjects-list">
                 <Book className="inline-block mr-2 h-4 w-4" />
                 Subjects
