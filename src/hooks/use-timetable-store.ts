@@ -14,6 +14,7 @@ interface TimetableState {
   classSchedules: ClassSchedule;
   setTeachers: (teachers: string[]) => void;
   setClasses: (classes: string[]) => void;
+  setSubjects: (subjects: string[]) => void;
   setTeacherSchedule: (teacherId: string, day: string, period: string, entry: ScheduleEntry) => void;
   generateClassSchedules: () => void;
   setOptimizedSchedules: (
@@ -64,6 +65,11 @@ export const useTimetableStore = create<TimetableState>()(
           classSchedules: {},
         });
         toast({ title: 'Success', description: 'Class list updated.' });
+      },
+
+      setSubjects: (newSubjects) => {
+        set({ subjects: newSubjects });
+        toast({ title: 'Success', description: 'Subject list updated.' });
       },
 
       setTeacherSchedule: (teacherId, day, period, entry) => {
