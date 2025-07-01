@@ -1,14 +1,20 @@
 'use client';
 
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BookOpen, Users, ArrowRight, FileText, CalendarClock, GraduationCap } from 'lucide-react';
 import { useTimetableStore } from '@/hooks/use-timetable-store';
 import { MadaanInternationalSchoolLogo } from '@/components/icons';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Home() {
-  const { teachers, classes, subjects } = useTimetableStore();
+  const { teachers, classes, subjects, initializeFromDB, isInitialized } = useTimetableStore();
+
+  useEffect(() => {
+    initializeFromDB();
+  }, [initializeFromDB]);
 
   return (
     <div className="flex flex-col min-h-[calc(100vh-8rem)]">
@@ -34,7 +40,11 @@ export default function Home() {
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{teachers.length}</div>
+              {isInitialized ? (
+                <div className="text-2xl font-bold">{teachers.length}</div>
+              ) : (
+                <Skeleton className="h-8 w-1/4" />
+              )}
             </CardContent>
           </Card>
           <Card>
@@ -43,7 +53,11 @@ export default function Home() {
               <BookOpen className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{classes.length}</div>
+              {isInitialized ? (
+                <div className="text-2xl font-bold">{classes.length}</div>
+              ) : (
+                <Skeleton className="h-8 w-1/4" />
+              )}
             </CardContent>
           </Card>
           <Card>
@@ -52,7 +66,11 @@ export default function Home() {
               <GraduationCap className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{subjects.length}</div>
+              {isInitialized ? (
+                <div className="text-2xl font-bold">{subjects.length}</div>
+              ) : (
+                <Skeleton className="h-8 w-1/4" />
+              )}
             </CardContent>
           </Card>
         </div>

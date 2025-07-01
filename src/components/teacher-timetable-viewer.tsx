@@ -1,20 +1,48 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useTimetableStore } from '@/hooks/use-timetable-store';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
-import { Download, AlertTriangle } from 'lucide-react';
+import { Download, AlertTriangle, Users, Wand2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { Skeleton } from './ui/skeleton';
+
+function LoadingSkeleton() {
+  return (
+    <div className="flex flex-col gap-8 animate-pulse">
+      <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <Skeleton className="h-10 w-48" />
+          <Skeleton className="h-5 w-64 mt-2" />
+        </div>
+        <div className="flex gap-2">
+          <Skeleton className="h-10 w-44" />
+          <Skeleton className="h-10 w-32" />
+        </div>
+      </header>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card><CardContent className="p-6"><Skeleton className="h-96 w-full" /></CardContent></Card>
+        <Card><CardContent className="p-6"><Skeleton className="h-96 w-full" /></CardContent></Card>
+      </div>
+    </div>
+  );
+}
 
 export default function TeacherTimetableViewer() {
-  const { teacherSchedules, days, periods, teachers } = useTimetableStore();
+  const store = useTimetableStore();
+  const { teacherSchedules, days, periods, teachers, isInitialized, initializeFromDB } = store;
   const { toast } = useToast();
   const router = useRouter();
+
+  useEffect(() => {
+    initializeFromDB();
+  }, [initializeFromDB]);
 
   const handleExport = () => {
     const doc = new jsPDF();
@@ -61,6 +89,10 @@ export default function TeacherTimetableViewer() {
     });
   };
 
+  if (!isInitialized) {
+    return <LoadingSkeleton />;
+  }
+
   const hasSchedules = Object.keys(teacherSchedules).some(teacherId => 
     Object.values(teacherSchedules[teacherId]).some(daySchedule => 
       Object.values(daySchedule).some(period => period !== null)
@@ -69,14 +101,14 @@ export default function TeacherTimetableViewer() {
 
   return (
     <div className="flex flex-col gap-8">
-       <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
+       <header className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex-grow">
           <h1 className="text-3xl font-bold tracking-tight text-primary">Teacher Timetables</h1>
           <p className="text-muted-foreground mt-1">
             View and export timetables for each teacher.
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-shrink-0">
             <Button onClick={() => router.push('/teacher-schedule')}>
               Go to Timetable Editor
             </Button>

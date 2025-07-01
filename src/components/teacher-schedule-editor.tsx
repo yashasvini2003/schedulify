@@ -17,6 +17,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import type { ScheduleEntry } from '@/types';
 import { Textarea } from './ui/textarea';
 import { Input } from './ui/input';
+import { Skeleton } from './ui/skeleton';
 
 function ScheduleCell({ teacherId, day, period }: { teacherId: string; day: string; period: string }) {
   const { teacherSchedules, setTeacherSchedule, classes, subjects } = useTimetableStore();
@@ -144,31 +145,60 @@ function ScheduleCell({ teacherId, day, period }: { teacherId: string; day: stri
   );
 }
 
+function LoadingSkeleton() {
+    return (
+        <div className="flex flex-col gap-8">
+            <div className="space-y-2">
+                <Skeleton className="h-10 w-1/3" />
+                <Skeleton className="h-5 w-2/3" />
+            </div>
+            <Card>
+                <CardHeader>
+                    <Skeleton className="h-8 w-1/4" />
+                    <Skeleton className="h-4 w-1/2" />
+                </CardHeader>
+                <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="space-y-2"><Skeleton className="h-6 w-1/4" /><Skeleton className="h-24 w-full" /></div>
+                        <div className="space-y-2"><Skeleton className="h-6 w-1/4" /><Skeleton className="h-24 w-full" /></div>
+                        <div className="space-y-2"><Skeleton className="h-6 w-1/4" /><Skeleton className="h-24 w-full" /></div>
+                    </div>
+                </CardContent>
+                <CardFooter className="flex-wrap items-end justify-between gap-4 border-t pt-6">
+                    <div className="space-y-2"><Skeleton className="h-6 w-1/4" /><Skeleton className="h-10 w-48" /></div>
+                    <Skeleton className="h-10 w-28" />
+                </CardFooter>
+            </Card>
+            <Card>
+                <CardHeader><Skeleton className="h-8 w-1/4" /></CardHeader>
+                <CardContent className="pt-6"><Skeleton className="h-96 w-full" /></CardContent>
+            </Card>
+      </div>
+    );
+}
+
 export default function TeacherScheduleEditor() {
   const router = useRouter();
   const store = useTimetableStore();
   const { toast } = useToast();
   
-  const [localTeachers, setLocalTeachers] = useState(store.teachers.join('\n'));
-  const [localClasses, setLocalClasses] = useState(store.classes.join('\n'));
-  const [localSubjects, setLocalSubjects] = useState(store.subjects.join('\n'));
-  const [localPeriods, setLocalPeriods] = useState(store.periods.length.toString());
+  const [localTeachers, setLocalTeachers] = useState('');
+  const [localClasses, setLocalClasses] = useState('');
+  const [localSubjects, setLocalSubjects] = useState('');
+  const [localPeriods, setLocalPeriods] = useState('');
 
   useEffect(() => {
-    setLocalTeachers(store.teachers.join('\n'));
-  }, [store.teachers]);
-  
-  useEffect(() => {
-    setLocalClasses(store.classes.join('\n'));
-  }, [store.classes]);
+    store.initializeFromDB();
+  }, [store.initializeFromDB]);
 
   useEffect(() => {
-    setLocalSubjects(store.subjects.join('\n'));
-  }, [store.subjects]);
-
-  useEffect(() => {
-    setLocalPeriods(store.periods.length.toString());
-  }, [store.periods]);
+    if (store.isInitialized) {
+      setLocalTeachers(store.teachers.join('\n'));
+      setLocalClasses(store.classes.join('\n'));
+      setLocalSubjects(store.subjects.join('\n'));
+      setLocalPeriods(store.periods.length.toString());
+    }
+  }, [store.isInitialized, store.teachers, store.classes, store.subjects, store.periods]);
 
 
   const handleUpdateLists = () => {
@@ -204,6 +234,10 @@ export default function TeacherScheduleEditor() {
   const handleNavigateToTeacherTimetable = () => {
     router.push('/teacher-timetable');
   };
+
+  if (!store.isInitialized) {
+    return <LoadingSkeleton />;
+  }
 
   return (
     <div className="flex flex-col gap-8">
@@ -285,8 +319,8 @@ export default function TeacherScheduleEditor() {
                 </AlertDialogContent>
             </AlertDialog>
             <Button variant="secondary" onClick={handleNavigateToTeacherTimetable}>
-              <Wand2 className="mr-2 h-4 w-4" />
-              Generate Teacher Timetable
+              <Users className="mr-2 h-4 w-4" />
+              View Teacher Timetables
             </Button>
             <Button onClick={handleGenerateAndNavigate}>
               <Wand2 className="mr-2 h-4 w-4" />

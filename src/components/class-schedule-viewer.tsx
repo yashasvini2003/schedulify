@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useTimetableStore } from '@/hooks/use-timetable-store';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
@@ -10,11 +11,38 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { Skeleton } from './ui/skeleton';
+
+function LoadingSkeleton() {
+  return (
+    <div className="flex flex-col gap-8 animate-pulse">
+      <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <Skeleton className="h-10 w-48" />
+          <Skeleton className="h-5 w-64 mt-2" />
+        </div>
+        <div className="flex gap-2">
+          <Skeleton className="h-10 w-44" />
+          <Skeleton className="h-10 w-32" />
+        </div>
+      </header>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card><CardContent className="p-6"><Skeleton className="h-96 w-full" /></CardContent></Card>
+        <Card><CardContent className="p-6"><Skeleton className="h-96 w-full" /></CardContent></Card>
+      </div>
+    </div>
+  );
+}
 
 export default function ClassScheduleViewer() {
-  const { classSchedules, days, periods, classes } = useTimetableStore();
+  const store = useTimetableStore();
+  const { classSchedules, days, periods, classes, isInitialized, initializeFromDB } = store;
   const { toast } = useToast();
   const router = useRouter();
+
+  useEffect(() => {
+    initializeFromDB();
+  }, [initializeFromDB]);
 
   const handleExport = () => {
     const doc = new jsPDF();
@@ -61,6 +89,10 @@ export default function ClassScheduleViewer() {
     });
   };
 
+  if (!isInitialized) {
+    return <LoadingSkeleton />;
+  }
+  
   const hasSchedules = Object.keys(classSchedules).length > 0;
 
   return (

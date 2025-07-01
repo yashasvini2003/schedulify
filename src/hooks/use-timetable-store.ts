@@ -1,13 +1,13 @@
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import { TeacherSchedule, ClassSchedule, ScheduleEntry } from '@/types';
-import { INITIAL_TEACHERS, INITIAL_CLASSES, SUBJECTS, DAYS_OF_WEEK } from '@/lib/data';
+import type { TeacherSchedule, ClassSchedule, ScheduleEntry } from '@/types';
 import { toast } from './use-toast';
+import { getTimetable, updateTimetable } from '@/lib/database';
 
 const createPeriods = (count: number) => Array.from({ length: count }, (_, i) => `P${i + 1}`);
-const INITIAL_PERIOD_COUNT = 8;
 
-interface TimetableState {
+export interface TimetableState {
+  _id?: string;
+  isInitialized: boolean;
   teachers: string[];
   classes: string[];
   subjects: string[];
@@ -15,6 +15,7 @@ interface TimetableState {
   periods: string[];
   teacherSchedules: TeacherSchedule;
   classSchedules: ClassSchedule;
+  initializeFromDB: () => Promise<void>;
   setTeachers: (teachers: string[]) => void;
   setClasses: (classes: string[]) => void;
   setSubjects: (subjects: string[]) => void;
@@ -23,6 +24,17 @@ interface TimetableState {
   generateClassSchedules: () => void;
   resetSchedules: () => void;
 }
+
+function debounce<F extends (...args: any[]) => any>(func: F, waitFor: number) {
+  let timeout: NodeJS.Timeout;
+  return (...args: Parameters<F>): Promise<ReturnType<F>> =>
+    new Promise(resolve => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => resolve(func(...args)), waitFor);
+    });
+}
+
+const debouncedUpdateTimetable = debounce(updateTimetable, 1000);
 
 const createEmptySchedules = (teachers: string[], days: string[], periods: string[]): TeacherSchedule => {
   const schedule: TeacherSchedule = {};
@@ -39,174 +51,170 @@ const createEmptySchedules = (teachers: string[], days: string[], periods: strin
 };
 
 export const useTimetableStore = create<TimetableState>()(
-  persist(
-    (set, get) => ({
-      teachers: INITIAL_TEACHERS,
-      classes: INITIAL_CLASSES,
-      subjects: SUBJECTS,
-      days: DAYS_OF_WEEK,
-      periods: createPeriods(INITIAL_PERIOD_COUNT),
-      teacherSchedules: createEmptySchedules(INITIAL_TEACHERS, DAYS_OF_WEEK, createPeriods(INITIAL_PERIOD_COUNT)),
-      classSchedules: {},
+  (set, get) => ({
+    _id: undefined,
+    isInitialized: false,
+    teachers: [],
+    classes: [],
+    subjects: [],
+    days: [],
+    periods: [],
+    teacherSchedules: {},
+    classSchedules: {},
 
-      setTeachers: (newTeachers) => {
-        const { teacherSchedules, days, periods } = get();
-        const oldSchedules = teacherSchedules;
-        const newTeacherSchedules: TeacherSchedule = {};
+    initializeFromDB: async () => {
+      if (get().isInitialized) return;
+      try {
+        const data = await getTimetable();
+        if (data) {
+          set({ ...data, isInitialized: true });
+        } else {
+            throw new Error("No data returned from database");
+        }
+      } catch (error) {
+        console.error("Failed to initialize from database:", error);
+        toast({
+          variant: 'destructive',
+          title: 'Database Error',
+          description: 'Could not load timetable data. Check console for details.',
+        });
+      }
+    },
 
-        // Add existing and new teachers, preserving their schedules
-        newTeachers.forEach(teacher => {
-          newTeacherSchedules[teacher] = oldSchedules[teacher] || {};
-          days.forEach(day => {
-            newTeacherSchedules[teacher][day] = newTeacherSchedules[teacher][day] || {};
-            periods.forEach(period => {
-              if (newTeacherSchedules[teacher][day][period] === undefined) {
-                newTeacherSchedules[teacher][day][period] = null;
-              }
-            });
+    setTeachers: (newTeachers) => {
+      const { teacherSchedules, days, periods } = get();
+      const oldSchedules = teacherSchedules;
+      const newTeacherSchedules: TeacherSchedule = {};
+
+      newTeachers.forEach(teacher => {
+        newTeacherSchedules[teacher] = oldSchedules[teacher] || {};
+        days.forEach(day => {
+          newTeacherSchedules[teacher][day] = newTeacherSchedules[teacher][day] || {};
+          periods.forEach(period => {
+            if (newTeacherSchedules[teacher][day][period] === undefined) {
+              newTeacherSchedules[teacher][day][period] = null;
+            }
           });
         });
+      });
+      
+      const updatedState = { ...get(), teachers: newTeachers, teacherSchedules: newTeacherSchedules, classSchedules: {} };
+      set(updatedState);
+      debouncedUpdateTimetable(updatedState);
+    },
 
-        set({
-          teachers: newTeachers,
-          teacherSchedules: newTeacherSchedules,
-          classSchedules: {}, // Reset class schedules as they are derived
-        });
-      },
+    setClasses: (newClasses) => {
+      const updatedState = { ...get(), classes: newClasses, classSchedules: {} };
+      set(updatedState);
+      debouncedUpdateTimetable(updatedState);
+    },
 
-      setClasses: (newClasses) => {
-        set({
-          classes: newClasses,
-          classSchedules: {},
-        });
-      },
+    setSubjects: (newSubjects) => {
+      const updatedState = { ...get(), subjects: newSubjects };
+      set(updatedState);
+      debouncedUpdateTimetable(updatedState);
+    },
+    
+    setPeriods: (count) => {
+      if (count < 1 || count > 12) {
+        toast({ variant: 'destructive', title: 'Invalid Input', description: 'Number of periods must be between 1 and 12.' });
+        return;
+      }
+      const { teacherSchedules, teachers, days, periods: oldPeriods } = get();
+      const newPeriods = createPeriods(count);
+      if (JSON.stringify(oldPeriods) === JSON.stringify(newPeriods)) return;
+      const newTeacherSchedules: TeacherSchedule = {};
+      teachers.forEach(teacher => {
+          newTeacherSchedules[teacher] = {};
+          days.forEach(day => {
+              const oldDaySchedule = teacherSchedules[teacher]?.[day] || {};
+              const newDaySchedule: Record<string, ScheduleEntry> = {};
+              newPeriods.forEach(period => {
+                  newDaySchedule[period] = oldDaySchedule[period] || null;
+              });
+              newTeacherSchedules[teacher][day] = newDaySchedule;
+          });
+      });
+      const updatedState = { ...get(), periods: newPeriods, teacherSchedules: newTeacherSchedules, classSchedules: {} };
+      set(updatedState);
+      debouncedUpdateTimetable(updatedState);
+    },
 
-      setSubjects: (newSubjects) => {
-        set({ subjects: newSubjects });
-      },
-
-      setPeriods: (count) => {
-        if (count < 1 || count > 12) {
-          toast({ variant: 'destructive', title: 'Invalid Input', description: 'Number of periods must be between 1 and 12.' });
+    setTeacherSchedule: (teacherId, day, period, entry) => {
+      const { teacherSchedules } = get();
+      if (entry) {
+        const teacherDaySchedule = teacherSchedules[teacherId]?.[day] || {};
+        if (teacherDaySchedule[period]) {
+          toast({ variant: 'destructive', title: 'Clash Detected', description: `${teacherId} is already assigned to a class in this slot.` });
           return;
         }
-
-        const { teacherSchedules, teachers, days, periods: oldPeriods } = get();
-        const newPeriods = createPeriods(count);
-
-        if (JSON.stringify(oldPeriods) === JSON.stringify(newPeriods)) return;
-
-        const newTeacherSchedules: TeacherSchedule = {};
-
-        teachers.forEach(teacher => {
-            newTeacherSchedules[teacher] = {};
-            days.forEach(day => {
-                const oldDaySchedule = teacherSchedules[teacher]?.[day] || {};
-                const newDaySchedule: Record<string, ScheduleEntry> = {};
-                
-                newPeriods.forEach(period => {
-                    newDaySchedule[period] = oldDaySchedule[period] || null;
-                });
-                
-                newTeacherSchedules[teacher][day] = newDaySchedule;
-            });
-        });
-
-        set({
-          periods: newPeriods,
-          teacherSchedules: newTeacherSchedules,
-          classSchedules: {}
-        });
-      },
-
-      setTeacherSchedule: (teacherId, day, period, entry) => {
-        const { teacherSchedules } = get();
-        
-        // Clash detection
-        if (entry) {
-          // Check if teacher is already assigned
-          const teacherDaySchedule = teacherSchedules[teacherId]?.[day] || {};
-          if (teacherDaySchedule[period]) {
-            toast({ variant: 'destructive', title: 'Clash Detected', description: `${teacherId} is already assigned to a class in this slot.` });
+        for (const t of Object.keys(teacherSchedules)) {
+          const existingEntry = teacherSchedules[t]?.[day]?.[period];
+          if (existingEntry && existingEntry.classId === entry.classId) {
+            toast({ variant: 'destructive', title: 'Clash Detected', description: `${entry.classId} is already assigned a teacher in this slot.` });
             return;
           }
-
-          // Check if class is already occupied
-          for (const t of Object.keys(teacherSchedules)) {
-            const existingEntry = teacherSchedules[t]?.[day]?.[period];
-            if (existingEntry && existingEntry.classId === entry.classId) {
-              toast({ variant: 'destructive', title: 'Clash Detected', description: `${entry.classId} is already assigned a teacher in this slot.` });
-              return;
-            }
-          }
         }
-
-        set(state => ({
-          teacherSchedules: {
-            ...state.teacherSchedules,
-            [teacherId]: {
-              ...state.teacherSchedules[teacherId],
-              [day]: {
-                ...state.teacherSchedules[teacherId]?.[day],
-                [period]: entry,
-              },
+      }
+      set(state => {
+        const updatedSchedules = {
+          ...state.teacherSchedules,
+          [teacherId]: {
+            ...state.teacherSchedules[teacherId],
+            [day]: {
+              ...state.teacherSchedules[teacherId]?.[day],
+              [period]: entry,
             },
           },
-        }));
-      },
+        };
+        const updatedState = { ...state, teacherSchedules: updatedSchedules };
+        debouncedUpdateTimetable(updatedState);
+        return { teacherSchedules: updatedSchedules };
+      });
+    },
 
-      generateClassSchedules: () => {
-        const { teacherSchedules, classes, days, periods } = get();
-        const newClassSchedules: ClassSchedule = {};
-
-        classes.forEach(classId => {
-          newClassSchedules[classId] = {};
-          days.forEach(day => {
-            newClassSchedules[classId][day] = {};
-            periods.forEach(period => {
-              newClassSchedules[classId][day][period] = null;
-            });
+    generateClassSchedules: () => {
+      const { teacherSchedules, classes, days, periods } = get();
+      const newClassSchedules: ClassSchedule = {};
+      classes.forEach(classId => {
+        newClassSchedules[classId] = {};
+        days.forEach(day => {
+          newClassSchedules[classId][day] = {};
+          periods.forEach(period => {
+            newClassSchedules[classId][day][period] = null;
           });
         });
-
-        Object.entries(teacherSchedules).forEach(([teacherId, schedule]) => {
-          if (!schedule) return;
-          Object.entries(schedule).forEach(([day, daySchedule]) => {
-            if (!daySchedule) return;
-            Object.entries(daySchedule).forEach(([period, entry]) => {
-              if (entry && newClassSchedules[entry.classId]) {
-                if (newClassSchedules[entry.classId]?.[day]?.[period]) {
-                   console.warn(`Conflict detected for class ${entry.classId} on ${day} at ${period}. Overwriting.`);
-                }
-                const newEntry: { teacherId: string, subject: string, note?: string } = { teacherId, subject: entry.subject };
-                if (entry.note) {
-                  newEntry.note = entry.note;
-                }
-
-                if(newClassSchedules[entry.classId]?.[day]) {
-                    newClassSchedules[entry.classId][day][period] = newEntry;
-                }
+      });
+      Object.entries(teacherSchedules).forEach(([teacherId, schedule]) => {
+        if (!schedule) return;
+        Object.entries(schedule).forEach(([day, daySchedule]) => {
+          if (!daySchedule) return;
+          Object.entries(daySchedule).forEach(([period, entry]) => {
+            if (entry && newClassSchedules[entry.classId]) {
+              const newEntry: { teacherId: string, subject: string, note?: string } = { teacherId, subject: entry.subject };
+              if (entry.note) {
+                newEntry.note = entry.note;
               }
-            });
+              if(newClassSchedules[entry.classId]?.[day]) {
+                  newClassSchedules[entry.classId][day][period] = newEntry;
+              }
+            }
           });
         });
-        
-        set({ classSchedules: newClassSchedules });
-        toast({ title: 'Success', description: 'Class timetables generated.' });
-      },
+      });
+      const updatedState = { ...get(), classSchedules: newClassSchedules };
+      set(updatedState);
+      debouncedUpdateTimetable(updatedState);
+      toast({ title: 'Success', description: 'Class timetables generated.' });
+    },
 
-      resetSchedules: () => {
-        const { teachers, days, periods } = get();
-        set({
-            teacherSchedules: createEmptySchedules(teachers, days, periods),
-            classSchedules: {}
-        });
-        toast({ title: 'Schedules Reset', description: 'All timetable entries have been cleared.' });
-      }
-    }),
-    {
-      name: 'chronoflow-timetable-storage',
-      storage: createJSONStorage(() => localStorage),
+    resetSchedules: () => {
+      const { teachers, days, periods } = get();
+      const emptySchedules = createEmptySchedules(teachers, days, periods);
+      const updatedState = { ...get(), teacherSchedules: emptySchedules, classSchedules: {} };
+      set(updatedState);
+      debouncedUpdateTimetable(updatedState);
+      toast({ title: 'Schedules Reset', description: 'All timetable entries have been cleared.' });
     }
-  )
+  })
 );
