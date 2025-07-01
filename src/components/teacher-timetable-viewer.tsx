@@ -8,19 +8,57 @@ import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 import { Download, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 export default function TeacherTimetableViewer() {
   const { teacherSchedules, days, periods, teachers } = useTimetableStore();
   const { toast } = useToast();
   const router = useRouter();
 
-  const handleExport = (format: 'PDF') => {
-    toast({
-        title: "Export Initiated (Demo)",
-        description: `This is a placeholder. In a real app, the timetables would be exported to ${format}.`,
+  const handleExport = () => {
+    const doc = new jsPDF();
+    
+    teachers.forEach((teacherId, index) => {
+        if (index > 0) {
+            doc.addPage();
+        }
+
+        doc.setFontSize(18);
+        doc.text(`Timetable for: ${teacherId}`, 14, 22);
+
+        const tableHead = [['Day', ...periods]];
+        const tableBody = days.map(day => {
+            const row: string[] = [day];
+            periods.forEach(period => {
+                const entry = teacherSchedules[teacherId]?.[day]?.[period];
+                if (entry) {
+                    let cellText = `${entry.classId}\n${entry.subject}`;
+                    if(entry.note) {
+                        cellText += `\n(${entry.note})`;
+                    }
+                    row.push(cellText);
+                } else {
+                    row.push('Free Period');
+                }
+            });
+            return row;
+        });
+
+        autoTable(doc, {
+            head: tableHead,
+            body: tableBody,
+            startY: 30,
+            styles: { cellPadding: 2, fontSize: 8, valign: 'middle', halign: 'center' },
+            headStyles: { fillColor: [166, 96, 58] },
+        });
     });
-    console.log(`Exporting all teacher timetables as ${format}...`);
-    console.log(teacherSchedules);
+
+    doc.save('teacher-timetables.pdf');
+    toast({
+        title: "Export Successful",
+        description: "Teacher timetables have been exported as a PDF.",
+    });
   };
 
   const hasSchedules = Object.keys(teacherSchedules).some(teacherId => 
@@ -42,7 +80,7 @@ export default function TeacherTimetableViewer() {
             <Button onClick={() => router.push('/teacher-schedule')}>
               Go to Timetable Editor
             </Button>
-            <Button variant="outline" onClick={() => handleExport('PDF')} disabled={!hasSchedules}>
+            <Button variant="outline" onClick={handleExport} disabled={!hasSchedules}>
               <Download className="mr-2 h-4 w-4" />
               Export as PDF
             </Button>

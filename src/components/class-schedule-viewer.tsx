@@ -8,19 +8,57 @@ import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 import { Download, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 export default function ClassScheduleViewer() {
   const { classSchedules, days, periods, classes } = useTimetableStore();
   const { toast } = useToast();
   const router = useRouter();
 
-  const handleExport = (format: 'PDF' | 'Excel') => {
-    toast({
-        title: "Export Initiated (Demo)",
-        description: `This is a placeholder. In a real app, the timetables would be exported to ${format}.`,
+  const handleExport = () => {
+    const doc = new jsPDF();
+    
+    classes.forEach((classId, index) => {
+        if (index > 0) {
+            doc.addPage();
+        }
+
+        doc.setFontSize(18);
+        doc.text(`Timetable for Class: ${classId}`, 14, 22);
+
+        const tableHead = [['Day', ...periods]];
+        const tableBody = days.map(day => {
+            const row = [day];
+            periods.forEach(period => {
+                const entry = classSchedules[classId]?.[day]?.[period];
+                if (entry) {
+                    let cellText = `${entry.teacherId}\n${entry.subject}`;
+                     if(entry.note) {
+                        cellText += `\n(${entry.note})`;
+                    }
+                    row.push(cellText);
+                } else {
+                    row.push('');
+                }
+            });
+            return row;
+        });
+
+        autoTable(doc, {
+            head: tableHead,
+            body: tableBody,
+            startY: 30,
+            styles: { cellPadding: 2, fontSize: 8, valign: 'middle', halign: 'center' },
+            headStyles: { fillColor: [166, 96, 58] },
+        });
     });
-    console.log(`Exporting all class timetables as ${format}...`);
-    console.log(classSchedules);
+
+    doc.save('class-timetables.pdf');
+    toast({
+        title: "Export Successful",
+        description: "Class timetables have been exported as a PDF.",
+    });
   };
 
   const hasSchedules = Object.keys(classSchedules).length > 0;
@@ -36,7 +74,7 @@ export default function ClassScheduleViewer() {
           <Button onClick={() => router.push('/teacher-schedule')}>
             Go to Timetable Editor
           </Button>
-          <Button variant="outline" onClick={() => handleExport('PDF')} disabled={!hasSchedules}>
+          <Button variant="outline" onClick={handleExport} disabled={!hasSchedules}>
             <Download className="mr-2 h-4 w-4" />
             Export PDF
           </Button>
