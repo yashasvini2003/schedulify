@@ -216,13 +216,13 @@ export default function TeacherScheduleEditor() {
           <CardTitle>Manage Timetable Data</CardTitle>
           <CardDescription>Enter one item per line for lists. Click 'Update Lists' to apply changes to the timetable editor below.</CardDescription>
         </CardHeader>
-        <CardContent className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="teachers-list">
               <Users className="inline-block mr-2 h-4 w-4" />
               Teachers
             </Label>
-            <Textarea id="teachers-list" value={localTeachers} onChange={(e) => setLocalTeachers(e.target.value)} rows={5} placeholder="Enter one teacher per line..." />
+            <Textarea id="teachers-list" value={localTeachers} onChange={(e) => setLocalTeachers(e.target.value)} rows={4} placeholder="Enter one teacher per line..." />
           </div>
 
           <div className="space-y-2">
@@ -230,7 +230,7 @@ export default function TeacherScheduleEditor() {
               <Building className="inline-block mr-2 h-4 w-4" />
               Classes
             </Label>
-            <Textarea id="classes-list" value={localClasses} onChange={(e) => setLocalClasses(e.target.value)} rows={5} placeholder="Enter one class per line..." />
+            <Textarea id="classes-list" value={localClasses} onChange={(e) => setLocalClasses(e.target.value)} rows={4} placeholder="Enter one class per line..." />
           </div>
 
           <div className="space-y-2">
@@ -238,7 +238,7 @@ export default function TeacherScheduleEditor() {
               <Book className="inline-block mr-2 h-4 w-4" />
               Subjects
             </Label>
-            <Textarea id="subjects-list" value={localSubjects} onChange={(e) => setLocalSubjects(e.target.value)} rows={5} placeholder="Enter one subject per line..." />
+            <Textarea id="subjects-list" value={localSubjects} onChange={(e) => setLocalSubjects(e.target.value)} rows={4} placeholder="Enter one subject per line..." />
           </div>
         </CardContent>
         <CardFooter className="flex flex-wrap items-end justify-between gap-4 border-t pt-6">
