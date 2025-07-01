@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Label } from './ui/label';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { AlertTriangle, Book, Building, FileText, Hourglass, Trash2, Users, Wand2 } from 'lucide-react';
+import { AlertTriangle, Book, Building, Hourglass, Trash2, Users, Wand2 } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
 import type { ScheduleEntry } from '@/types';
 import { Textarea } from './ui/textarea';
@@ -284,9 +284,9 @@ export default function TeacherScheduleEditor() {
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
-            <Button onClick={handleNavigateToTeacherTimetable} variant="outline">
-              <FileText className="mr-2 h-4 w-4" />
-              View Teacher Timetables
+            <Button onClick={handleNavigateToTeacherTimetable}>
+              <Wand2 className="mr-2 h-4 w-4" />
+              Generate Teacher Timetable
             </Button>
             <Button onClick={handleGenerateAndNavigate}>
               <Wand2 className="mr-2 h-4 w-4" />
