@@ -36,6 +36,9 @@ const prompt = ai.definePrompt({
   name: 'optimizeTimetablePrompt',
   input: {schema: OptimizeTimetableInputSchema},
   output: {schema: OptimizeTimetableOutputSchema},
+  config: {
+    response_mime_type: 'application/json',
+  },
   prompt: `You are an AI timetable optimizer. Given the following teacher and class timetables, optimize the timetables to ensure an even distribution of workload among teachers, and avoid teacher/class conflicts or duplicate entries.
 
 Crucially, you must respect the maximum weekly period workload for each teacher specified in \`teacherWorkloads\`. A teacher's total assigned periods for the week must not exceed their specified limit. If you cannot create a valid schedule without exceeding these limits for one or more teachers, your primary goal is to report this failure clearly in the \`optimizationSummary\`. In case of failure, return the original timetables unmodified.
