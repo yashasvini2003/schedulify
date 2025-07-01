@@ -5,11 +5,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/
 import { Button } from './ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
-import { Download, AlertTriangle, Wand2 } from 'lucide-react';
+import { Download, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export default function ClassScheduleViewer() {
-  const { classSchedules, generateClassSchedules, days, periods, classes } = useTimetableStore();
+  const { classSchedules, days, periods, classes } = useTimetableStore();
   const { toast } = useToast();
 
   const handleExport = (format: 'PDF' | 'Excel') => {
@@ -28,13 +28,9 @@ export default function ClassScheduleViewer() {
       <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-primary">Class Schedules</h1>
-          <p className="text-muted-foreground">Generate, view, and export timetables for each class.</p>
+          <p className="text-muted-foreground">View and export timetables for each class.</p>
         </div>
         <div className="flex gap-2">
-          <Button onClick={generateClassSchedules}>
-            <Wand2 className="mr-2 h-4 w-4" />
-            Generate Timetables
-          </Button>
           <Button variant="outline" onClick={() => handleExport('PDF')} disabled={!hasSchedules}>
             <Download className="mr-2 h-4 w-4" />
             Export PDF
@@ -93,8 +89,7 @@ export default function ClassScheduleViewer() {
                     <AlertTriangle className="h-4 w-4" />
                     <AlertTitle>No Class Schedules Generated</AlertTitle>
                     <AlertDescription>
-                        Click the "Generate Timetables" button to create schedules based on the current teacher assignments.
-                        If no assignments have been made, please go to the Teacher Schedules page first.
+                        Go to the Teacher Schedules page to assign teachers to classes and then generate the class timetables.
                     </AlertDescription>
                 </Alert>
             </CardContent>

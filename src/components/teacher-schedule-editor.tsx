@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useTimetableStore } from '@/hooks/use-timetable-store';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from './ui/card';
 import { Button } from './ui/button';
@@ -9,9 +10,8 @@ import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Label } from './ui/label';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
-import { optimizeTimetableAction } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
-import { AlertTriangle, Book, Bot, Building, Loader2, Sparkles, Trash2, Users } from 'lucide-react';
+import { AlertTriangle, Book, Building, Trash2, Users, Wand2 } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
 import type { ScheduleEntry } from '@/types';
 import { Textarea } from './ui/textarea';
@@ -105,9 +105,9 @@ function ScheduleCell({ teacherId, day, period }: { teacherId: string; day: stri
 }
 
 export default function TeacherScheduleEditor() {
+  const router = useRouter();
   const store = useTimetableStore();
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
   
   const [localTeachers, setLocalTeachers] = useState(store.teachers.join('\n'));
   const [localClasses, setLocalClasses] = useState(store.classes.join('\n'));
@@ -149,43 +149,9 @@ export default function TeacherScheduleEditor() {
     });
   };
   
-  const handleOptimize = async () => {
-    setIsLoading(true);
-    store.generateClassSchedules(); // Ensure class schedules are up to date before optimizing
-    const currentState = useTimetableStore.getState();
-
-    const result = await optimizeTimetableAction({
-        teachers: currentState.teachers,
-        classes: currentState.classes,
-        teacherSchedules: currentState.teacherSchedules,
-        classSchedules: currentState.classSchedules,
-        teacherWorkloads: currentState.teacherWorkloads,
-    });
-    
-    if (result.success && result.data) {
-        store.setOptimizedSchedules(result.data.teacherSchedules, result.data.classSchedules);
-        toast({
-            title: "AI Optimization Complete",
-            description: (
-              <div className="flex flex-col gap-2">
-                <p>Timetables have been optimized.</p>
-                <Alert>
-                  <Bot className="h-4 w-4" />
-                  <AlertTitle>Optimization Summary</AlertTitle>
-                  <AlertDescription>{result.data.summary}</AlertDescription>
-                </Alert>
-              </div>
-            )
-        });
-    } else {
-        toast({
-            variant: "destructive",
-            title: "AI Optimization Failed",
-            description: result.error || "An unknown error occurred.",
-        });
-    }
-
-    setIsLoading(false);
+  const handleGenerateAndNavigate = () => {
+    store.generateClassSchedules();
+    router.push('/class-schedule');
   };
 
 
@@ -230,35 +196,6 @@ export default function TeacherScheduleEditor() {
             <Button onClick={handleUpdateLists}>Update Lists</Button>
         </CardFooter>
       </Card>
-      
-      <Card>
-        <CardHeader>
-            <CardTitle>Teacher Workload Limits</CardTitle>
-            <CardDescription>Set the maximum number of periods per week for each teacher. The AI will respect these limits during optimization.</CardDescription>
-        </CardHeader>
-        <CardContent>
-            {store.teachers.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-4">
-                    {store.teachers.map(teacher => (
-                        <div key={teacher} className="flex items-center justify-between gap-4">
-                            <Label htmlFor={`workload-${teacher}`} className="truncate">{teacher}</Label>
-                            <Input
-                                id={`workload-${teacher}`}
-                                type="number"
-                                value={store.teacherWorkloads[teacher] || ''}
-                                onChange={(e) => store.setTeacherWorkload(teacher, parseInt(e.target.value, 10) || 0)}
-                                className="w-24"
-                                min="0"
-                                max={store.days.length * store.periods.length}
-                            />
-                        </div>
-                    ))}
-                </div>
-            ) : (
-                <p className="text-sm text-muted-foreground">Add teachers above to set workload limits.</p>
-            )}
-        </CardContent>
-      </Card>
 
       <Card>
         <CardHeader className="flex-row items-center justify-between">
@@ -288,13 +225,9 @@ export default function TeacherScheduleEditor() {
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
-            <Button onClick={handleOptimize} disabled={isLoading}>
-              {isLoading ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Sparkles className="mr-2 h-4 w-4" />
-              )}
-              Optimize with AI
+            <Button onClick={handleGenerateAndNavigate}>
+              <Wand2 className="mr-2 h-4 w-4" />
+              Generate Class Timetable
             </Button>
           </div>
         </CardHeader>
