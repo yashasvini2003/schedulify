@@ -36,13 +36,13 @@ function LoadingSkeleton() {
 
 export default function TeacherTimetableViewer() {
   const store = useTimetableStore();
-  const { teacherSchedules, days, periods, teachers, isInitialized, initializeFromDB } = store;
+  const { teacherSchedules, days, periods, teachers, isInitialized, initialize } = store;
   const { toast } = useToast();
   const router = useRouter();
 
   useEffect(() => {
-    initializeFromDB();
-  }, [initializeFromDB]);
+    initialize();
+  }, [initialize]);
 
   const handleExport = () => {
     const doc = new jsPDF();

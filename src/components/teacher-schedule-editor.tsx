@@ -188,8 +188,8 @@ export default function TeacherScheduleEditor() {
   const [localPeriods, setLocalPeriods] = useState('');
 
   useEffect(() => {
-    store.initializeFromDB();
-  }, [store.initializeFromDB]);
+    store.initialize();
+  }, [store.initialize]);
 
   useEffect(() => {
     if (store.isInitialized) {

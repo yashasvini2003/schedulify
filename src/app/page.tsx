@@ -10,11 +10,11 @@ import { MadaanInternationalSchoolLogo } from '@/components/icons';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Home() {
-  const { teachers, classes, subjects, initializeFromDB, isInitialized } = useTimetableStore();
+  const { teachers, classes, subjects, initialize, isInitialized } = useTimetableStore();
 
   useEffect(() => {
-    initializeFromDB();
-  }, [initializeFromDB]);
+    initialize();
+  }, [initialize]);
 
   return (
     <div className="flex flex-col min-h-[calc(100vh-8rem)]">

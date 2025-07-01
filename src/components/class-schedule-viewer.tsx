@@ -36,13 +36,13 @@ function LoadingSkeleton() {
 
 export default function ClassScheduleViewer() {
   const store = useTimetableStore();
-  const { classSchedules, days, periods, classes, isInitialized, initializeFromDB } = store;
+  const { classSchedules, days, periods, classes, isInitialized, initialize } = store;
   const { toast } = useToast();
   const router = useRouter();
 
   useEffect(() => {
-    initializeFromDB();
-  }, [initializeFromDB]);
+    initialize();
+  }, [initialize]);
 
   const handleExport = () => {
     const doc = new jsPDF();
