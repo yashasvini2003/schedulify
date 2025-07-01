@@ -19,9 +19,9 @@ import { Button } from '../ui/button';
 
 const navItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/teacher-schedule', label: 'Teacher Schedules', icon: Users },
+  { href: '/teacher-schedule', label: 'Timetable Editor', icon: Users },
   { href: '/teacher-timetable', label: 'Teacher Timetables', icon: FileText },
-  { href: '/class-schedule', label: 'Class Timetables', icon: BookOpen },
+  { href: '/class-timetable', label: 'Class Timetable', icon: BookOpen },
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {

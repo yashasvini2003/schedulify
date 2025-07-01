@@ -197,7 +197,7 @@ export default function TeacherScheduleEditor() {
   
   const handleGenerateAndNavigate = () => {
     store.generateClassSchedules();
-    router.push('/class-schedule');
+    router.push('/class-timetable');
   };
 
   const handleNavigateToTeacherTimetable = () => {
@@ -207,8 +207,8 @@ export default function TeacherScheduleEditor() {
   return (
     <div className="flex flex-col gap-8">
       <header>
-        <h1 className="text-3xl font-bold tracking-tight text-primary">Teacher Schedules</h1>
-        <p className="text-muted-foreground">Manage teachers, classes, and their weekly schedules.</p>
+        <h1 className="text-3xl font-bold tracking-tight text-primary">Timetable Editor</h1>
+        <p className="text-muted-foreground">The central hub for all scheduling. Add teachers, classes, subjects, and assign periods in the master timetable editor.</p>
       </header>
 
       <Card>
@@ -256,7 +256,7 @@ export default function TeacherScheduleEditor() {
       <Card>
         <CardHeader className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <CardTitle>Timetable Editor</CardTitle>
+            <CardTitle>Master Timetable</CardTitle>
             <CardDescription>Click a cell to assign a class and subject. Clashes will be automatically prevented.</CardDescription>
           </div>
           <div className="flex flex-wrap justify-start gap-2 md:justify-end">

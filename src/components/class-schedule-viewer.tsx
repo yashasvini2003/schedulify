@@ -27,7 +27,7 @@ export default function ClassScheduleViewer() {
     <div className="flex flex-col gap-8">
       <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-primary">Class Timetables</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-primary">Class Timetable</h1>
           <p className="text-muted-foreground">View and export timetables for each class.</p>
         </div>
         <div className="flex gap-2">
