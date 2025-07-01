@@ -20,3 +20,26 @@ export function ChronoFlowLogo(props: SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+
+export function MadaanInternationalSchoolLogo(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      viewBox="0 0 100 100"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <circle cx="50" cy="50" r="48" fill="hsl(var(--primary))" />
+      <text
+        x="50"
+        y="62"
+        fontFamily="Arial, sans-serif"
+        fontSize="40"
+        fill="hsl(var(--primary-foreground))"
+        textAnchor="middle"
+        fontWeight="bold"
+      >
+        MI
+      </text>
+    </svg>
+  );
+}
