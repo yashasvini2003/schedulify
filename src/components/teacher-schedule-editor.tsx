@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -283,9 +284,9 @@ export default function TeacherScheduleEditor() {
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
-            <Button onClick={handleNavigateToTeacherTimetable}>
-              <Wand2 className="mr-2 h-4 w-4" />
-              Generate Teacher Timetable
+            <Button onClick={handleNavigateToTeacherTimetable} variant="outline">
+              <FileText className="mr-2 h-4 w-4" />
+              View Teacher Timetables
             </Button>
             <Button onClick={handleGenerateAndNavigate}>
               <Wand2 className="mr-2 h-4 w-4" />
