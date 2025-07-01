@@ -215,12 +215,12 @@ export default function TeacherScheduleEditor() {
       </Card>
 
       <Card>
-        <CardHeader className="flex-row items-center justify-between">
+        <CardHeader className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <CardTitle>Timetable Editor</CardTitle>
             <CardDescription>Click a cell to assign a class and subject. Clashes will be automatically prevented.</CardDescription>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap justify-start gap-2 md:justify-end">
             <AlertDialog>
                 <AlertDialogTrigger asChild>
                     <Button variant="destructive">
