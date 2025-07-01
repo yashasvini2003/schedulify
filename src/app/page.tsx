@@ -110,7 +110,7 @@ export default function Home() {
                  <div className="bg-primary/10 p-2 rounded-lg">
                   <BookOpen className="text-primary h-6 w-6" />
                 </div>
-                Class Schedules
+                Class Timetables
               </CardTitle>
             </CardHeader>
             <CardContent className="flex-grow">
@@ -121,7 +121,7 @@ export default function Home() {
             <CardFooter>
               <Button asChild className="w-full">
                 <Link href="/class-schedule">
-                  View Schedules <ArrowRight className="ml-2 h-4 w-4" />
+                  View Timetables <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
             </CardFooter>

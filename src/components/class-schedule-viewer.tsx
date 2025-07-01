@@ -27,7 +27,7 @@ export default function ClassScheduleViewer() {
     <div className="flex flex-col gap-8">
       <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-primary">Class Schedules</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-primary">Class Timetables</h1>
           <p className="text-muted-foreground">View and export timetables for each class.</p>
         </div>
         <div className="flex gap-2">
@@ -88,7 +88,7 @@ export default function ClassScheduleViewer() {
             <CardContent className="pt-6">
                 <Alert>
                     <AlertTriangle className="h-4 w-4" />
-                    <AlertTitle>No Class Schedules Generated</AlertTitle>
+                    <AlertTitle>No Class Timetables Generated</AlertTitle>
                     <AlertDescription>
                         Go to the Teacher Schedules page to assign teachers to classes and then generate the class timetables.
                     </AlertDescription>
