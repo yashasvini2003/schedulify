@@ -3,14 +3,12 @@
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Users, ArrowRight, LayoutDashboard, FileText, CalendarClock, GraduationCap } from 'lucide-react';
+import { BookOpen, Users, ArrowRight, FileText, CalendarClock, GraduationCap } from 'lucide-react';
 import { useTimetableStore } from '@/hooks/use-timetable-store';
 import { MadaanInternationalSchoolLogo } from '@/components/icons';
 
 export default function Home() {
-  const { teachers, classes, subjects, classSchedules } = useTimetableStore();
-
-  const isGenerated = Object.keys(classSchedules).length > 0;
+  const { teachers, classes, subjects } = useTimetableStore();
 
   return (
     <div className="flex flex-col min-h-[calc(100vh-8rem)]">
@@ -29,7 +27,7 @@ export default function Home() {
           </div>
         </header>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-12">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-12">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Teachers</CardTitle>
@@ -55,17 +53,6 @@ export default function Home() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{subjects.length}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Timetable Status</CardTitle>
-              <LayoutDashboard className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className={`text-2xl font-bold ${isGenerated ? 'text-green-600' : 'text-blue-600'}`}>
-                {isGenerated ? 'Generated' : 'In Progress'}
-              </div>
             </CardContent>
           </Card>
         </div>
