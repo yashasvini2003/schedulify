@@ -22,31 +22,64 @@ function ScheduleCell({ teacherId, day, period }: { teacherId: string; day: stri
   const entry = teacherSchedules[teacherId]?.[day]?.[period];
 
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedClass, setSelectedClass] = useState(entry?.classId || '');
-  const [selectedSubject, setSelectedSubject] = useState(entry?.subject || '');
+  const [selectedClass, setSelectedClass] = useState('');
+  const [selectedSubject, setSelectedSubject] = useState('');
+  const [note, setNote] = useState('');
+
+  useEffect(() => {
+    if (isOpen) {
+      if (entry) {
+        setSelectedClass(entry.classId);
+        setSelectedSubject(entry.subject);
+        setNote(entry.note || '');
+      } else {
+        setSelectedClass('');
+        setSelectedSubject('');
+        setNote('');
+      }
+    }
+  }, [isOpen, entry]);
 
   const handleSave = () => {
     if (selectedClass && selectedSubject) {
-      setTeacherSchedule(teacherId, day, period, { classId: selectedClass, subject: selectedSubject });
+      const newEntry: NonNullable<ScheduleEntry> = {
+          classId: selectedClass,
+          subject: selectedSubject,
+      };
+      if (note) {
+          newEntry.note = note;
+      }
+      setTeacherSchedule(teacherId, day, period, newEntry);
     }
     setIsOpen(false);
   };
 
   const handleClear = () => {
     setTeacherSchedule(teacherId, day, period, null);
-    setSelectedClass('');
-    setSelectedSubject('');
     setIsOpen(false);
+  };
+
+  const handleReset = () => {
+    if (entry) {
+      setSelectedClass(entry.classId);
+      setSelectedSubject(entry.subject);
+      setNote(entry.note || '');
+    } else {
+      setSelectedClass('');
+      setSelectedSubject('');
+      setNote('');
+    }
   };
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <TableCell className="h-16 w-32 border cursor-pointer text-center hover:bg-secondary/50 transition-colors" data-testid={`cell-${teacherId}-${day}-${period}`}>
+        <TableCell className="h-24 w-32 border cursor-pointer text-center hover:bg-secondary/50 transition-colors" data-testid={`cell-${teacherId}-${day}-${period}`}>
           {entry ? (
-            <div className="text-xs">
+            <div className="text-xs space-y-1">
               <p className="font-bold text-primary">{entry.classId}</p>
               <p className="text-muted-foreground">{entry.subject}</p>
+              {entry.note && <p className="text-muted-foreground italic truncate mt-1 text-left border-l-2 pl-2">{entry.note}</p>}
             </div>
           ) : (
             <div className="text-gray-300 dark:text-gray-600">+</div>
@@ -87,15 +120,21 @@ function ScheduleCell({ teacherId, day, period }: { teacherId: string; day: stri
               </SelectContent>
             </Select>
           </div>
-          <div className="flex justify-between">
-            {entry && (
-               <Button variant="ghost" size="icon" onClick={handleClear} className="text-destructive">
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            )}
-            <div className="flex gap-2 ml-auto">
-              <Button variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
-              <Button onClick={handleSave}>Save</Button>
+          <div className="grid gap-2">
+            <Label htmlFor="note">Note (optional)</Label>
+            <Textarea id="note" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Add an optional note..." rows={2} />
+          </div>
+          <div className="flex justify-between items-center mt-2">
+            <div>
+              {entry && (
+                 <Button variant="destructive" size="sm" onClick={handleClear}>
+                  <Trash2 className="mr-2 h-4 w-4" /> Clear
+                </Button>
+              )}
+            </div>
+            <div className="flex gap-2">
+              <Button variant="ghost" size="sm" onClick={handleReset}>Reset</Button>
+              <Button size="sm" onClick={handleSave}>Save</Button>
             </div>
           </div>
         </div>
