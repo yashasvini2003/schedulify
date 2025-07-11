@@ -18,15 +18,19 @@ import type { ScheduleEntry } from '@/types';
 import { Textarea } from './ui/textarea';
 import { Input } from './ui/input';
 import { Skeleton } from './ui/skeleton';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion';
+import { Checkbox } from './ui/checkbox';
 
 function ScheduleCell({ teacherId, day, period }: { teacherId: string; day: string; period: string }) {
-  const { teacherSchedules, setTeacherSchedule, classes, subjects } = useTimetableStore();
+  const { teacherSchedules, setTeacherSchedule, classes, subjects, days, periods } = useTimetableStore();
+  const { toast } = useToast();
   const entry = teacherSchedules[teacherId]?.[day]?.[period];
 
   const [isOpen, setIsOpen] = useState(false);
   const [selectedClass, setSelectedClass] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('');
   const [note, setNote] = useState('');
+  const [repeatSlots, setRepeatSlots] = useState<Record<string, Record<string, boolean>>>({});
 
   useEffect(() => {
     if (isOpen) {
@@ -39,21 +43,63 @@ function ScheduleCell({ teacherId, day, period }: { teacherId: string; day: stri
         setSelectedSubject('');
         setNote('');
       }
+      setRepeatSlots({});
     }
   }, [isOpen, entry]);
 
   const handleSave = () => {
-    if (selectedClass && selectedSubject) {
-      const newEntry: NonNullable<ScheduleEntry> = {
-          classId: selectedClass,
-          subject: selectedSubject,
-      };
-      if (note) {
-          newEntry.note = note;
-      }
-      setTeacherSchedule(teacherId, day, period, newEntry);
+    if (!selectedClass || !selectedSubject) {
+      toast({
+        variant: 'destructive',
+        title: 'Missing Information',
+        description: 'Please select a class and a subject before saving.',
+      });
+      return;
     }
+
+    const newEntry: NonNullable<ScheduleEntry> = {
+      classId: selectedClass,
+      subject: selectedSubject,
+    };
+    if (note) {
+      newEntry.note = note;
+    }
+
+    // Save the primary slot
+    setTeacherSchedule(teacherId, day, period, newEntry);
+
+    // Save the repeated slots
+    Object.entries(repeatSlots).forEach(([repeatDay, dayPeriods]) => {
+      Object.entries(dayPeriods).forEach(([repeatPeriod, isSelected]) => {
+        if (isSelected) {
+          // Check for clash before setting, but don't show toast for every clash
+          const isSlotFree = !teacherSchedules[teacherId]?.[repeatDay]?.[repeatPeriod];
+          if (isSlotFree) {
+            setTeacherSchedule(teacherId, repeatDay, repeatPeriod, newEntry);
+          } else {
+             console.warn(`Could not repeat slot for ${teacherId} on ${repeatDay} ${repeatPeriod}: Slot is already taken.`);
+          }
+        }
+      });
+    });
+
+    toast({
+        title: 'Schedule Updated',
+        description: `Assignments for ${teacherId} have been saved.`,
+    })
+
     setIsOpen(false);
+  };
+  
+  const handleRepeatChange = (day: string, period: string, checked: boolean) => {
+    setRepeatSlots(prev => {
+        const newSlots = { ...prev };
+        if (!newSlots[day]) {
+            newSlots[day] = {};
+        }
+        newSlots[day][period] = checked;
+        return newSlots;
+    });
   };
 
   const handleClear = () => {
@@ -71,6 +117,7 @@ function ScheduleCell({ teacherId, day, period }: { teacherId: string; day: stri
       setSelectedSubject('');
       setNote('');
     }
+    setRepeatSlots({});
   };
 
   return (
@@ -126,6 +173,56 @@ function ScheduleCell({ teacherId, day, period }: { teacherId: string; day: stri
             <Label htmlFor="note">Note (optional)</Label>
             <Textarea id="note" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Add an optional note..." rows={2} />
           </div>
+
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="item-1">
+                <AccordionTrigger className="text-sm">Repeat this assignment</AccordionTrigger>
+                <AccordionContent>
+                    <div className="space-y-4 max-h-48 overflow-y-auto pr-2">
+                        {days.map(d => {
+                            const isAnyPeriodSelected = periods.some(p => repeatSlots[d]?.[p]);
+                            return (
+                                <div key={d}>
+                                    <div className="flex items-center space-x-2 mb-2">
+                                        <Checkbox 
+                                            id={`day-${d}`} 
+                                            checked={isAnyPeriodSelected}
+                                            onCheckedChange={(checked) => {
+                                                periods.forEach(p => {
+                                                    if (`${d}-${p}` !== `${day}-${period}`) {
+                                                        handleRepeatChange(d, p, !!checked)
+                                                    }
+                                                });
+                                            }}
+                                        />
+                                        <Label htmlFor={`day-${d}`} className="font-semibold">{d}</Label>
+                                    </div>
+                                    {isAnyPeriodSelected && (
+                                      <div className="grid grid-cols-4 gap-2 pl-6">
+                                        {periods.map(p => {
+                                            const isCurrentSlot = d === day && p === period;
+                                            return (
+                                                <div key={`${d}-${p}`} className="flex items-center space-x-2">
+                                                    <Checkbox
+                                                        id={`${d}-${p}`}
+                                                        checked={!!repeatSlots[d]?.[p]}
+                                                        onCheckedChange={(checked) => handleRepeatChange(d, p, !!checked)}
+                                                        disabled={isCurrentSlot}
+                                                    />
+                                                    <Label htmlFor={`${d}-${p}`} className={isCurrentSlot ? "text-muted-foreground" : ""}>{p}</Label>
+                                                </div>
+                                            )
+                                        })}
+                                      </div>
+                                    )}
+                                </div>
+                            )
+                        })}
+                    </div>
+                </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+
           <div className="flex justify-between items-center mt-2">
             <div>
               {entry && (
@@ -319,8 +416,8 @@ export default function TeacherScheduleEditor() {
                 </AlertDialogContent>
             </AlertDialog>
             <Button variant="secondary" onClick={handleNavigateToTeacherTimetable}>
-              <Users className="mr-2 h-4 w-4" />
-              View Teacher Timetables
+              <Wand2 className="mr-2 h-4 w-4" />
+              Generate Teacher Timetable
             </Button>
             <Button onClick={handleGenerateAndNavigate}>
               <Wand2 className="mr-2 h-4 w-4" />
