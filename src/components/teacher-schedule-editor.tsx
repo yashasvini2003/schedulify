@@ -31,6 +31,7 @@ function ScheduleCell({ teacherId, day, period }: { teacherId: string; day: stri
   const [selectedSubject, setSelectedSubject] = useState('');
   const [note, setNote] = useState('');
   const [repeatSlots, setRepeatSlots] = useState<Record<string, Record<string, boolean>>>({});
+  const [expandedDays, setExpandedDays] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (isOpen) {
@@ -44,6 +45,7 @@ function ScheduleCell({ teacherId, day, period }: { teacherId: string; day: stri
         setNote('');
       }
       setRepeatSlots({});
+      setExpandedDays({});
     }
   }, [isOpen, entry]);
 
@@ -118,6 +120,7 @@ function ScheduleCell({ teacherId, day, period }: { teacherId: string; day: stri
       setNote('');
     }
     setRepeatSlots({});
+    setExpandedDays({});
   };
 
   return (
@@ -179,45 +182,38 @@ function ScheduleCell({ teacherId, day, period }: { teacherId: string; day: stri
                 <AccordionTrigger className="text-sm">Repeat this assignment</AccordionTrigger>
                 <AccordionContent>
                     <div className="space-y-4 max-h-48 overflow-y-auto pr-2">
-                        {days.map(d => {
-                            const isAnyPeriodSelected = periods.some(p => repeatSlots[d]?.[p]);
-                            return (
-                                <div key={d}>
-                                    <div className="flex items-center space-x-2 mb-2">
-                                        <Checkbox 
-                                            id={`day-${d}`} 
-                                            checked={isAnyPeriodSelected}
-                                            onCheckedChange={(checked) => {
-                                                periods.forEach(p => {
-                                                    if (`${d}-${p}` !== `${day}-${period}`) {
-                                                        handleRepeatChange(d, p, !!checked)
-                                                    }
-                                                });
-                                            }}
-                                        />
-                                        <Label htmlFor={`day-${d}`} className="font-semibold">{d}</Label>
-                                    </div>
-                                    {isAnyPeriodSelected && (
-                                      <div className="grid grid-cols-4 gap-2 pl-6">
-                                        {periods.map(p => {
-                                            const isCurrentSlot = d === day && p === period;
-                                            return (
-                                                <div key={`${d}-${p}`} className="flex items-center space-x-2">
-                                                    <Checkbox
-                                                        id={`${d}-${p}`}
-                                                        checked={!!repeatSlots[d]?.[p]}
-                                                        onCheckedChange={(checked) => handleRepeatChange(d, p, !!checked)}
-                                                        disabled={isCurrentSlot}
-                                                    />
-                                                    <Label htmlFor={`${d}-${p}`} className={isCurrentSlot ? "text-muted-foreground" : ""}>{p}</Label>
-                                                </div>
-                                            )
-                                        })}
-                                      </div>
-                                    )}
+                        {days.map(d => (
+                            <div key={d}>
+                                <div className="flex items-center space-x-2 mb-2">
+                                    <Checkbox 
+                                        id={`day-${d}`} 
+                                        checked={expandedDays[d]}
+                                        onCheckedChange={(checked) => {
+                                            setExpandedDays(prev => ({ ...prev, [d]: !!checked }));
+                                        }}
+                                    />
+                                    <Label htmlFor={`day-${d}`} className="font-semibold">{d}</Label>
                                 </div>
-                            )
-                        })}
+                                {expandedDays[d] && (
+                                  <div className="grid grid-cols-4 gap-2 pl-6">
+                                    {periods.map(p => {
+                                        const isCurrentSlot = d === day && p === period;
+                                        return (
+                                            <div key={`${d}-${p}`} className="flex items-center space-x-2">
+                                                <Checkbox
+                                                    id={`${d}-${p}`}
+                                                    checked={!!repeatSlots[d]?.[p]}
+                                                    onCheckedChange={(checked) => handleRepeatChange(d, p, !!checked)}
+                                                    disabled={isCurrentSlot}
+                                                />
+                                                <Label htmlFor={`${d}-${p}`} className={isCurrentSlot ? "text-muted-foreground" : ""}>{p}</Label>
+                                            </div>
+                                        )
+                                    })}
+                                  </div>
+                                )}
+                            </div>
+                        ))}
                     </div>
                 </AccordionContent>
             </AccordionItem>
