@@ -149,7 +149,7 @@ export default function Home() {
       
       <footer className="text-center py-6 mt-auto">
         <p className="text-sm text-muted-foreground">
-          &copy; {new Date().getFullYear()} Yashasvini Bhanuraj. All rights reserved.
+          © 2025 Yashasvini Bhanuraj. All rights reserved.
         </p>
       </footer>
     </div>
