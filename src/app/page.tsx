@@ -146,12 +146,6 @@ export default function Home() {
           </Card>
         </div>
       </main>
-      
-      <footer className="text-center py-6 mt-auto">
-        <p className="text-sm text-muted-foreground">
-          © 2025 Yashasvini Bhanuraj. All rights reserved.
-        </p>
-      </footer>
     </div>
   );
 }
