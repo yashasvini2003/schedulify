@@ -28,14 +28,13 @@ export function MadaanInternationalSchoolLogo(props: SVGProps<SVGSVGElement>) {
       xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
-      <circle cx="50" cy="50" r="48" fill="hsl(var(--primary))" />
+      {/* Image in the middle */}
       <image
-        href="/public/school-logo.png"
-        x="25"
-        y="25"
-        width="50"
-        height="50"
-        preserveAspectRatio="xMidYMid meet"
+        href="/school-logo.png"  // Make sure file is in public/school-logo.png
+        x="0"
+        y="0"
+        width="100"
+        height="100"
       />
     </svg>
   );
