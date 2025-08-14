@@ -37,7 +37,7 @@ You will need to have [Node.js](https://nodejs.org/) (version 18 or later) and n
 
 1. **Clone the repository:**
     ```sh
-    git clone [https://github.com/your-username/your-repository-name.git](https://github.com/yashasvini2003/timetable.git)
+    git clone (https://github.com/yashasvini2003/timetable.git)
     ```
 2. **Navigate to the project directory:**
     ```sh
