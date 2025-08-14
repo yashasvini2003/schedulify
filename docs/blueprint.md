@@ -1,4 +1,4 @@
-# **App Name**: ChronoFlow
+# **App Name**: Timetable Maker
 
 ## Core Features:
 
