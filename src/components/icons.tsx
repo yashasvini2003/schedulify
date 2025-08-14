@@ -1,6 +1,6 @@
 import type { SVGProps } from "react";
 
-export function ChronoFlowLogo(props: SVGProps<SVGSVGElement>) {
+export function SchedulifyLogo(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

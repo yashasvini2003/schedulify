@@ -13,7 +13,7 @@ import {
   SidebarMenuButton,
   SidebarInset,
 } from '@/components/ui/sidebar';
-import { ChronoFlowLogo } from '@/components/icons';
+import { SchedulifyLogo } from '@/components/icons';
 import { BookOpen, LayoutDashboard, Users, FileText } from 'lucide-react';
 import { Button } from '../ui/button';
 
@@ -39,10 +39,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-2 p-2">
             <Button variant="ghost" size="icon" className="shrink-0" asChild>
               <Link href="/">
-                <ChronoFlowLogo className="h-5 w-5 text-primary" />
+                <SchedulifyLogo className="h-5 w-5 text-primary" />
               </Link>
             </Button>
-            <h1 className="text-lg font-semibold tracking-tight">Timetable Maker</h1>
+            <h1 className="text-lg font-semibold tracking-tight">Schedulify</h1>
           </div>
         </SidebarHeader>
         <SidebarContent>

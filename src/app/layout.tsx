@@ -4,7 +4,7 @@ import { Toaster } from '@/components/ui/toaster';
 import AppLayout from '@/components/layout/app-layout';
 
 export const metadata: Metadata = {
-  title: 'Timetable Maker',
+  title: 'Schedulify',
   description: 'Intelligent Timetable Management',
 };
 
