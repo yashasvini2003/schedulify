@@ -29,17 +29,14 @@ export function MadaanInternationalSchoolLogo(props: SVGProps<SVGSVGElement>) {
       {...props}
     >
       <circle cx="50" cy="50" r="48" fill="hsl(var(--primary))" />
-      <text
-        x="50"
-        y="62"
-        fontFamily="Arial, sans-serif"
-        fontSize="40"
-        fill="hsl(var(--primary-foreground))"
-        textAnchor="middle"
-        fontWeight="bold"
-      >
-        MI
-      </text>
+      <image
+        href="/public/school-logo.png"
+        x="25"
+        y="25"
+        width="50"
+        height="50"
+        preserveAspectRatio="xMidYMid meet"
+      />
     </svg>
   );
 }

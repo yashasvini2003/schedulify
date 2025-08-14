@@ -42,7 +42,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 <ChronoFlowLogo className="h-5 w-5 text-primary" />
               </Link>
             </Button>
-            <h1 className="text-lg font-semibold tracking-tight">ChronoFlow</h1>
+            <h1 className="text-lg font-semibold tracking-tight">Timetable Maker</h1>
           </div>
         </SidebarHeader>
         <SidebarContent>

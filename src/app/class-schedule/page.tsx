@@ -1,7 +1,7 @@
 import ClassScheduleViewer from "@/components/class-schedule-viewer";
 
 export const metadata = {
-  title: "Class Timetable | ChronoFlow",
+  title: "Class Timetable",
   description: "View and export generated class timetables.",
 };
 

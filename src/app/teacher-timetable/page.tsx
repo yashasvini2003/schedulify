@@ -1,7 +1,7 @@
 import TeacherTimetableViewer from "@/components/teacher-timetable-viewer";
 
 export const metadata = {
-  title: "Teacher Timetables | ChronoFlow",
+  title: "Teacher Timetables",
   description: "View individual teacher timetables.",
 };
 
