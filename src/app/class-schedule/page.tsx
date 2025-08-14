@@ -5,6 +5,12 @@ export const metadata = {
   description: "View and export generated class timetables.",
 };
 
-export default function ClassSchedulePage() {
+export default function ClassSchedulePage({
+    params,
+    searchParams,
+  }: {
+    params: { slug: string };
+    searchParams: { [key: string]: string | string[] | undefined };
+  }) {
     return <ClassScheduleViewer />;
 }

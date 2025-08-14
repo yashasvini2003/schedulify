@@ -5,6 +5,12 @@ export const metadata = {
   description: "The central hub for all scheduling.",
 };
 
-export default function TeacherSchedulePage() {
+export default function TeacherSchedulePage({
+    params,
+    searchParams,
+  }: {
+    params: { slug: string };
+    searchParams: { [key: string]: string | string[] | undefined };
+  }) {
     return <TeacherScheduleEditor />;
 }

@@ -5,6 +5,12 @@ export const metadata = {
   description: "View individual teacher timetables.",
 };
 
-export default function TeacherTimetablePage() {
+export default function TeacherTimetablePage({
+    params,
+    searchParams,
+  }: {
+    params: { slug: string };
+    searchParams: { [key: string]: string | string[] | undefined };
+  }) {
     return <TeacherTimetableViewer />;
 }
