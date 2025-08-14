@@ -41,7 +41,7 @@ You will need to have [Node.js](https://nodejs.org/) (version 18 or later) and n
     ```
 2. **Navigate to the project directory:**
     ```sh
-    cd your-repository-name
+    cd timetable
     ```
 3. **Install NPM packages:**
     ```sh
