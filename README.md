@@ -1,4 +1,4 @@
-# Timetable Maker: Intelligent Timetable Management
+# Schedulify: Intelligent Timetable Management
 
 **Timetable Maker** is a modern, web-based application designed to simplify the complex task of creating and managing school timetables. Built with a clean and intuitive user interface, it provides administrators with the tools to efficiently schedule classes, manage teacher assignments, and resolve conflicts. The application is designed to be fast, responsive, and easy to use.
 
